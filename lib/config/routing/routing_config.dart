@@ -60,6 +60,7 @@ abstract final class RoutingConfig {
                   (_) => HomeViewModel(
                     clubRepository: context.read(),
                     authRepository: context.read(),
+                    activitiesRepository: context.read(),
                   ),
               child: BaseLayout(child: const HomePage()),
             ),
