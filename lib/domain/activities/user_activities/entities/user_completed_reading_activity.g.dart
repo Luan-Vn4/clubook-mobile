@@ -14,6 +14,16 @@ UserCompletedReadingActivity _$UserCompletedReadingActivityFromJson(
   type: $enumDecode(_$ActivityTypeEnumMap, json['type']),
   userId: json['userId'] as String,
   bookId: json['bookId'] as String,
+  startDate:
+      json['startDate'] == null
+          ? null
+          : DateTime.parse(json['startDate'] as String),
+  endDate:
+      json['endDate'] == null
+          ? null
+          : DateTime.parse(json['endDate'] as String),
+  bookTitle: json['bookTitle'] as String?,
+  bookCoverUrl: json['bookCoverUrl'] as String?,
 );
 
 Map<String, dynamic> _$UserCompletedReadingActivityToJson(
@@ -24,6 +34,10 @@ Map<String, dynamic> _$UserCompletedReadingActivityToJson(
   'type': _$ActivityTypeEnumMap[instance.type]!,
   'userId': instance.userId,
   'bookId': instance.bookId,
+  'startDate': instance.startDate?.toIso8601String(),
+  'endDate': instance.endDate?.toIso8601String(),
+  'bookTitle': instance.bookTitle,
+  'bookCoverUrl': instance.bookCoverUrl,
 };
 
 const _$ActivityTypeEnumMap = {

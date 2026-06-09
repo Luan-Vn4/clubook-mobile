@@ -89,8 +89,13 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     return _meetingsRepository.findMeetingsByClubId(clubId, pageSize);
   }
 
-  Future<Paginator<Activity>> getClubActivities(int pageSize) async {
-    return _activitiesRepository.findActivitiesByClubId(clubId, pageSize);
+  Future<Paginator<Activity>> getClubActivities(
+    int pageSize, {
+    List<ActivityType>? types,
+  }) async {
+    return _activitiesRepository.findActivitiesByClubId(
+      clubId, pageSize, types: types,
+    );
   }
 
 }

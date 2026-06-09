@@ -5,9 +5,17 @@ import 'package:booklub/ui/core/splash_animations/splash_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart' show GoRouter;
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:marionette_flutter/marionette_flutter.dart';
 
 void main() {
   EnvConfig.checkEnvVars();
+
+  if (kDebugMode) {
+    MarionetteBinding.ensureInitialized();
+  } else {
+    WidgetsFlutterBinding.ensureInitialized();
+  }
 
   runApp(
     MultiProvider(

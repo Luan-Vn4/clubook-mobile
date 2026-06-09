@@ -15,6 +15,20 @@ MemberCompletedReadingActivity _$MemberCompletedReadingActivityFromJson(
   clubId: json['clubId'] as String,
   userId: json['userId'] as String,
   bookId: json['bookId'] as String,
+  clubName: json['clubName'] as String?,
+  clubPhotoUrl: json['clubPhotoUrl'] as String?,
+  startDate:
+      json['startDate'] == null
+          ? null
+          : DateTime.parse(json['startDate'] as String),
+  endDate:
+      json['endDate'] == null
+          ? null
+          : DateTime.parse(json['endDate'] as String),
+  userName: json['userName'] as String?,
+  userAvatarUrl: json['userAvatarUrl'] as String?,
+  bookTitle: json['bookTitle'] as String?,
+  bookCoverUrl: json['bookCoverUrl'] as String?,
 );
 
 Map<String, dynamic> _$MemberCompletedReadingActivityToJson(
@@ -24,8 +38,16 @@ Map<String, dynamic> _$MemberCompletedReadingActivityToJson(
   'createdAt': instance.createdAt.toIso8601String(),
   'type': _$ActivityTypeEnumMap[instance.type]!,
   'clubId': instance.clubId,
+  'clubName': instance.clubName,
+  'clubPhotoUrl': instance.clubPhotoUrl,
   'userId': instance.userId,
   'bookId': instance.bookId,
+  'startDate': instance.startDate?.toIso8601String(),
+  'endDate': instance.endDate?.toIso8601String(),
+  'userName': instance.userName,
+  'userAvatarUrl': instance.userAvatarUrl,
+  'bookTitle': instance.bookTitle,
+  'bookCoverUrl': instance.bookCoverUrl,
 };
 
 const _$ActivityTypeEnumMap = {

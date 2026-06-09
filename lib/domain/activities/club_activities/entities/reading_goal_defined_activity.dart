@@ -10,12 +10,26 @@ class ReadingGoalDefinedActivity extends ClubActivity {
 
   final String readingGoalId;
 
+  final DateTime? goalStartDate;
+
+  final DateTime? goalEndDate;
+
+  final String? bookTitle;
+
+  final String? bookCoverUrl;
+
   ReadingGoalDefinedActivity({
     required super.id,
     required super.createdAt,
     required super.type,
     required super.clubId,
     required this.readingGoalId,
+    super.clubName,
+    super.clubPhotoUrl,
+    this.goalStartDate,
+    this.goalEndDate,
+    this.bookTitle,
+    this.bookCoverUrl,
   });
 
   factory ReadingGoalDefinedActivity.fromJson(Map<String, dynamic> json) =>

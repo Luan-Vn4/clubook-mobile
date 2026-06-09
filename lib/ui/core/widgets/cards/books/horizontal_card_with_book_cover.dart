@@ -1,12 +1,11 @@
 import 'package:booklub/config/theme/theme_config.dart';
-import 'package:booklub/domain/entities/books/book_item.dart';
 import 'package:flutter/material.dart';
 
 class HorizontalCardWithBookCover extends StatelessWidget {
 
   final String title;
 
-  final BookItem bookItem;
+  final String? bookCoverUrl;
 
   final Widget? header;
 
@@ -15,7 +14,7 @@ class HorizontalCardWithBookCover extends StatelessWidget {
   const HorizontalCardWithBookCover({
     super.key,
     required this.title,
-    required this.bookItem,
+    this.bookCoverUrl,
     this.header,
     this.children,
   });
@@ -98,9 +97,9 @@ class HorizontalCardWithBookCover extends StatelessWidget {
   Widget _buildBookCover(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final decorationImage = bookItem.thumbnail != null
+    final decorationImage = bookCoverUrl != null
       ? DecorationImage(
-          image: NetworkImage(bookItem.thumbnail!),
+          image: NetworkImage(bookCoverUrl!),
           fit: BoxFit.cover,
         )
       : null;

@@ -1,6 +1,4 @@
 import 'package:booklub/config/theme/theme_config.dart';
-import 'package:booklub/domain/entities/books/book_item.dart';
-import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/ui/core/widgets/cards/books/horizontal_card_with_book_cover.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +8,11 @@ class HorizontalUserContentCardWithBookCover extends StatelessWidget {
 
   final String title;
 
-  final User user;
+  final String? userName;
 
-  final BookItem bookItem;
+  final String? userAvatarUrl;
+
+  final String? bookCoverUrl;
 
   final bool showUserHeader;
 
@@ -23,8 +23,9 @@ class HorizontalUserContentCardWithBookCover extends StatelessWidget {
   const HorizontalUserContentCardWithBookCover({
     super.key,
     required this.title,
-    required this.user,
-    required this.bookItem,
+    this.userName,
+    this.userAvatarUrl,
+    this.bookCoverUrl,
     required this.createdAt,
     required this.children,
     this.showUserHeader = false
@@ -34,7 +35,7 @@ class HorizontalUserContentCardWithBookCover extends StatelessWidget {
   Widget build(BuildContext context) {
     return HorizontalCardWithBookCover(
       title: title,
-      bookItem: bookItem,
+      bookCoverUrl: bookCoverUrl,
       header: Builder(builder: _buildHeader),
       children: children,
     );
@@ -55,8 +56,14 @@ class HorizontalUserContentCardWithBookCover extends StatelessWidget {
               borderWidth: 0,
               backgroundColor: colorScheme.white,
               radius: 24,
+              decorationImage: userAvatarUrl != null
+                ? DecorationImage(
+                    image: NetworkImage(userAvatarUrl!),
+                    fit: BoxFit.cover,
+                  )
+                : null,
             ),
-            Text(user.username, style: textTheme.labelMedium!.copyWith(
+            Text(userName ?? 'Usuário desconhecido', style: textTheme.labelMedium!.copyWith(
                 color: colorScheme.onPrimary,
                 fontWeight: FontWeight.bold
             ))

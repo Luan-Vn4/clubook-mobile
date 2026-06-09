@@ -17,6 +17,10 @@ class RegisterViewModel extends ChangeNotifier {
 
   final Logger log = Logger();
 
+  String? error;
+
+  bool isLoading = false;
+
   late ValueNotifier<File?> profilePicture;
 
   late InputWrapper firstNameInput;
@@ -77,6 +81,10 @@ class RegisterViewModel extends ChangeNotifier {
   }
 
   Future<bool> register() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
     final inputs = [
       firstNameInput,
       lastNameInput,
@@ -90,6 +98,8 @@ class RegisterViewModel extends ChangeNotifier {
 
     if (invalidInputs.isNotEmpty) {
       log.d(invalidInputs);
+      isLoading = false;
+      notifyListeners();
       return false;
     }
 
@@ -102,8 +112,17 @@ class RegisterViewModel extends ChangeNotifier {
       image: profilePicture.value,
     );
 
-    await authRepository.register(dto);
-    return true;
+    try {
+      await authRepository.register(dto);
+      return true;
+    } catch (e) {
+      error = e.toString();
+      log.e('Registration error: $e');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> pickProfilePicture() async {

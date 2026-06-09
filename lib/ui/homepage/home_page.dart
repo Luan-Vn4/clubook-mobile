@@ -1,10 +1,10 @@
+import 'package:booklub/ui/core/widgets/cards/activity_cards/activity_card_builder.dart';
+import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'view_model/home_view_model.dart';
 import 'package:booklub/ui/user/widgets/section_title.dart';
 import 'widgets/club_card_widget.dart';
-import 'package:booklub/ui/core/widgets/cards/activity_cards/activity_card_builder.dart';
-import 'package:booklub/utils/async_builder.dart';
 import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
 import 'package:booklub/domain/activities/entities/activity.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
@@ -120,7 +120,6 @@ class _HomePageState extends State<HomePage> {
                     controller: scrollController,
                     gridDelegate: gridDelegate,
                     childrenDelegateProvider: (activities, total) {
-                      print('Tem $total atividades');
                       return SliverChildBuilderDelegate((context, index) {
                         final activity = activities[index];
                         try {
@@ -143,4 +142,5 @@ class _HomePageState extends State<HomePage> {
       onError: (e, stack) => Center(child: Text("Erro: $e")),
     );
   }
+
 }

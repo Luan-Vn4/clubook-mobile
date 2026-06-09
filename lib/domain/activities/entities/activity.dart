@@ -19,8 +19,14 @@ enum ActivityType {
   readingGoalDefined,
 
   @JsonValue('USER_COMPLETED_READING')
-  userCompletedReading,
+  userCompletedReading;
 
+  String toApiString() => switch (this) {
+    ActivityType.meetingDefined => 'MEETING_DEFINED',
+    ActivityType.memberCompletedReading => 'MEMBER_COMPLETED_READING',
+    ActivityType.readingGoalDefined => 'READING_GOAL_DEFINED',
+    ActivityType.userCompletedReading => 'USER_COMPLETED_READING',
+  };
 }
 
 abstract class Activity {

@@ -1,4 +1,5 @@
 import 'package:booklub/config/routing/routes.dart';
+import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/ui/core/widgets/buttons/purple_rounded_button.dart';
 import 'package:booklub/ui/core/widgets/input_fields/image_field_widget.dart';
 import 'package:booklub/ui/core/widgets/input_fields/named_date_field_widget.dart';
@@ -58,9 +59,36 @@ class RegisterPage extends StatelessWidget {
 
   void _onSubmit(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
-      final succeded = await registerViewModel.register();
-      if (context.mounted && succeded) context.go(Routes.login);
+      try {
+        final succeeded = await registerViewModel.register();
+        if (context.mounted && succeeded) {
+          context.go(Routes.login);
+        } else if (context.mounted) {
+          _showErrorSnackBar(context, registerViewModel.error ?? 'Falha ao registrar');
+        }
+      } on AuthException catch (e) {
+        if (context.mounted) {
+          _showErrorSnackBar(context, e.message);
+        }
+      } on NetworkException catch (e) {
+        if (context.mounted) {
+          _showErrorSnackBar(context, e.message);
+        }
+      } catch (e) {
+        if (context.mounted) {
+          _showErrorSnackBar(context, 'Erro inesperado: ${e.toString()}');
+        }
+      }
     }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
   }
 
   Widget _buildForm(BuildContext context) {

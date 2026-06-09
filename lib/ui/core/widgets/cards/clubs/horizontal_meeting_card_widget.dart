@@ -47,8 +47,9 @@ class HorizontalMeetingCardWidget extends StatelessWidget {
 
     return HorizontalClubContentCardWithBookCover(
       title: 'Encontro',
-      club: club,
-      bookItem: book,
+      clubName: club.name,
+      clubPhotoUrl: club.imageUrl,
+      bookCoverUrl: book.thumbnail,
       createdAt: meeting.createdAt,
       showClubHeader: showClubHeader,
       children: [

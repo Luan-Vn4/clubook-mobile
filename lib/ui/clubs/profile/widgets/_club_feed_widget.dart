@@ -1,9 +1,7 @@
-import 'package:booklub/domain/entities/books/book_item.dart';
+import 'package:booklub/domain/activities/entities/activity_filter.dart';
 import 'package:booklub/domain/entities/clubs/activities/club_activity.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
 import 'package:booklub/ui/core/widgets/cards/activity_cards/activity_card_builder.dart';
-import 'package:booklub/ui/core/widgets/cards/clubs/horizontal_meeting_card_widget.dart';
-import 'package:booklub/ui/core/widgets/cards/clubs/horizontal_reading_goal_card_widget.dart';
 import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
 import 'package:booklub/ui/core/widgets/section_selector_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
@@ -12,8 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sliver_tools/sliver_tools.dart';
-
-enum _FeedSection {activities, readingGoals, meetings}
 
 class ClubFeedWidget extends StatefulWidget {
 
@@ -28,7 +24,7 @@ class _ClubFeedWidgetState extends State<ClubFeedWidget> {
 
   final logger = Logger();
 
-  _FeedSection section = _FeedSection.activities;
+  ActivityFilter filter = ActivityFilter.all;
 
   Paginator<ClubActivity>? paginator;
 
@@ -36,41 +32,27 @@ class _ClubFeedWidgetState extends State<ClubFeedWidget> {
   Widget build(BuildContext context) {
     return MultiSliver(
       children: [
-        Builder(builder: _buildFeedSectionSelector),
-        switch (section) {
-          _FeedSection.activities => _buildActivitiesList(),
-          _FeedSection.readingGoals => _buildReadingGoalsList(),
-          _FeedSection.meetings => _buildMeetingsList(),
-        },
+        Builder(builder: _buildFeedFilterSelector),
+        _buildActivitiesList(),
       ],
     );
   }
 
-  Widget _buildFeedSectionSelector(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final sections = [
-      SectionSelectorItem(
-        label: 'Atividades',
-        onSelect: () => setState(() => section = _FeedSection.activities),
-        isSelected: section == _FeedSection.activities,
-      ),
-      SectionSelectorItem(
-        label: 'Leituras',
-        onSelect: () => setState(() => section = _FeedSection.readingGoals),
-        isSelected: section == _FeedSection.readingGoals,
-      ),
-      SectionSelectorItem(
-        label: 'Encontros',
-        onSelect: () => setState(() => section = _FeedSection.meetings),
-        isSelected: section == _FeedSection.meetings,
-      ),
-    ];
+  Widget _buildFeedFilterSelector(BuildContext context) {
+    final sections = ActivityFilter.values.map((f) => SectionSelectorItem(
+      label: switch (f) {
+        ActivityFilter.all => 'Atividades',
+        ActivityFilter.readings => 'Leituras',
+        ActivityFilter.meetings => 'Encontros',
+      },
+      onSelect: () => setState(() => filter = f),
+      isSelected: filter == f,
+    )).toList();
 
     return SliverToBoxAdapter(
       child: Container(
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           boxShadow: [BoxShadow(
             color: Colors.black26,
             offset: Offset(0, 4),
@@ -86,67 +68,14 @@ class _ClubFeedWidgetState extends State<ClubFeedWidget> {
     );
   }
 
-  Widget _buildReadingGoalsList() {
-    final viewModel = context.read<ClubProfileViewModel>();
-
-    return AsyncBuilder(
-      future: viewModel.getClubReadingGoals(10),
-      onRetrieved: (paginator) => Builder(
-        builder: (context) => _buildList(
-          context,
-          paginator,
-          (item) => HorizontalReadingGoalCardWidget(
-            readingGoal: item,
-            club: viewModel.club!,
-            bookItem: BookItem(title: 'str'), // TODO Implementar busca por livro
-          ),
-        )
-      ),
-      onLoading: () => Builder(builder: _buildOnLoadingList),
-      onError: (e, trace) => Builder(
-        builder: (context) => _buildOnErrorList(
-          context,
-          'Erro ao buscar leituras',
-          e,
-          trace
-        )
-      )
-    );
-  }
-
-  Widget _buildMeetingsList() {
-    final viewModel = context.read<ClubProfileViewModel>();
-
-    return AsyncBuilder(
-      future: viewModel.getClubMeetings(10),
-      onRetrieved: (paginator) => Builder(
-        builder: (context) => _buildList(
-          context,
-          paginator,
-          (item) => HorizontalMeetingCardWidget(
-            meeting: item,
-            club: viewModel.club!,
-            book: BookItem(title: 'O Mundo de Sopheia'), // TODO Implementar busca por livro
-          ),
-        )
-      ),
-      onLoading: () => Builder(builder: _buildOnLoadingList),
-      onError: (e, trace) => Builder(
-        builder: (context) => _buildOnErrorList(
-          context,
-          'Erro ao buscar encontros',
-          e,
-          trace
-        )
-      )
-    );
-  }
-
   Widget _buildActivitiesList() {
     final viewModel = context.read<ClubProfileViewModel>();
 
     return AsyncBuilder(
-      future: viewModel.getClubActivities(10),
+      future: viewModel.getClubActivities(
+        10,
+        types: filter.toActivityTypes(),
+      ),
       onRetrieved: (paginator) => Builder(
         builder: (context) => _buildList(
           context,
@@ -161,9 +90,9 @@ class _ClubFeedWidgetState extends State<ClubFeedWidget> {
       onError: (e, trace) => Builder(
         builder: (context) => _buildOnErrorList(
           context,
-          'Erro ao buscar encontros',
+          'Erro ao buscar atividades',
           e,
-          trace
+          trace,
         )
       )
     );

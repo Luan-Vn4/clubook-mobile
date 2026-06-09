@@ -12,6 +12,18 @@ class MemberCompletedReadingActivity extends ClubActivity {
 
   final String bookId;
 
+  final DateTime? startDate;
+
+  final DateTime? endDate;
+
+  final String? userName;
+
+  final String? userAvatarUrl;
+
+  final String? bookTitle;
+
+  final String? bookCoverUrl;
+
   MemberCompletedReadingActivity({
     required super.id,
     required super.createdAt,
@@ -19,6 +31,14 @@ class MemberCompletedReadingActivity extends ClubActivity {
     required super.clubId,
     required this.userId,
     required this.bookId,
+    super.clubName,
+    super.clubPhotoUrl,
+    this.startDate,
+    this.endDate,
+    this.userName,
+    this.userAvatarUrl,
+    this.bookTitle,
+    this.bookCoverUrl,
   });
 
   factory MemberCompletedReadingActivity.fromJson(Map<String, dynamic> json) =>

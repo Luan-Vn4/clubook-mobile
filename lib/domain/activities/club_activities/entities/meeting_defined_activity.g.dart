@@ -14,6 +14,16 @@ MeetingDefinedActivity _$MeetingDefinedActivityFromJson(
   type: $enumDecode(_$ActivityTypeEnumMap, json['type']),
   clubId: json['clubId'] as String,
   meetingId: json['meetingId'] as String,
+  clubName: json['clubName'] as String?,
+  clubPhotoUrl: json['clubPhotoUrl'] as String?,
+  meetingAddress: json['meetingAddress'] as String?,
+  meetingDate:
+      json['meetingDate'] == null
+          ? null
+          : DateTime.parse(json['meetingDate'] as String),
+  bookId: json['bookId'] as String?,
+  bookTitle: json['bookTitle'] as String?,
+  bookCoverUrl: json['bookCoverUrl'] as String?,
 );
 
 Map<String, dynamic> _$MeetingDefinedActivityToJson(
@@ -23,7 +33,14 @@ Map<String, dynamic> _$MeetingDefinedActivityToJson(
   'createdAt': instance.createdAt.toIso8601String(),
   'type': _$ActivityTypeEnumMap[instance.type]!,
   'clubId': instance.clubId,
+  'clubName': instance.clubName,
+  'clubPhotoUrl': instance.clubPhotoUrl,
   'meetingId': instance.meetingId,
+  'meetingAddress': instance.meetingAddress,
+  'meetingDate': instance.meetingDate?.toIso8601String(),
+  'bookId': instance.bookId,
+  'bookTitle': instance.bookTitle,
+  'bookCoverUrl': instance.bookCoverUrl,
 };
 
 const _$ActivityTypeEnumMap = {
