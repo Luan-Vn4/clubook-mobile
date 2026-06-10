@@ -33,7 +33,7 @@ class ReadingGoalsRepository {
       body: jsonEncode(readingGoal.toJson()),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Erro ao criar reading goal');
     }
 
@@ -95,5 +95,28 @@ class ReadingGoalsRepository {
     return ReadingGoal.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
+  Future<ReadingGoal> findClubCurrentReadingGoal(String clubId) async {
+    final authToken = (await _authRepository.getAuthData())!.token;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/clubs/$clubId/reading-goals/current',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Nenhuma leitura atual encontrada para o clube $clubId',
+      );
+    }
+
+    return ReadingGoal.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
 
 }

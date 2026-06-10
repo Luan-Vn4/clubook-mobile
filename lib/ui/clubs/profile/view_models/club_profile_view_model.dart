@@ -85,6 +85,11 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     return _readingGoalsRepository.findReadingGoalsByClubId(clubId, pageSize);
   }
 
+  Future<int> getClubReadingGoalsCount() async {
+    final paginator = await getClubReadingGoals(1);
+    return paginator.totalElements;
+  }
+
   Future<Paginator<Meeting>> getClubMeetings(int pageSize) async {
     return _meetingsRepository.findMeetingsByClubId(clubId, pageSize);
   }

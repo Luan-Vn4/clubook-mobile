@@ -17,6 +17,9 @@ class User {
 
   final String? imageUrl;
 
+  @JsonKey(defaultValue: 0)
+  final int totalClubs;
+
   String get fullName => '$firstName $lastName';
 
   const User({
@@ -26,6 +29,7 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.imageUrl,
+    this.totalClubs = 0,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

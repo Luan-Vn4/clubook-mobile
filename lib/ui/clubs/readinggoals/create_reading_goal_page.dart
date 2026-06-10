@@ -57,10 +57,12 @@ class CreateReadingGoalPage extends StatelessWidget {
           NamedDateFieldWidget(
             label: "Data Início",
             inputWrapper: vm.startDateTextInput,
+            onDatePicked: vm.setStartDate,
           ),
           NamedDateFieldWidget(
             label: "Data Final",
             inputWrapper: vm.endDateTextInput,
+            onDatePicked: vm.setEndDate,
           ),
         ],
       ),
@@ -70,14 +72,6 @@ class CreateReadingGoalPage extends StatelessWidget {
   Widget _buildButton(BuildContext context, CreateReadingGoalViewModel vm) {
     return PurpleRoundedButton("Criar", () async {
       if (_formKey.currentState?.validate() ?? false) {
-        print('📋 DEBUG CREATE READING GOAL');
-        print('Título válido: ${vm.bookTitleInput.isValid}');
-        print('Livro selecionado: ${vm.selectedBookItem?.title}');
-        print('Data início: ${vm.startDateInput.value}');
-        print('Data fim: ${vm.endDateInput.value}');
-        print(
-          'Início < Fim? ${vm.startDateInput.value != null && vm.endDateInput.value != null ? vm.startDateInput.value!.isBefore(vm.endDateInput.value!) : 'n/a'}',
-        );
         final success = await vm.createReadingGoal();
         if (context.mounted && success) Navigator.of(context).pop();
       }

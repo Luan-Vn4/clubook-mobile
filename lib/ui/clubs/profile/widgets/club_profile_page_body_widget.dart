@@ -2,6 +2,7 @@ import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dar
 import 'package:booklub/ui/clubs/profile/widgets/_club_feed_widget.dart';
 import 'package:booklub/ui/clubs/profile/widgets/_club_members_list_widget.dart';
 import 'package:booklub/ui/clubs/profile/widgets/_club_profile_info_list_widget.dart';
+import 'package:booklub/ui/clubs/profile/widgets/_club_readings_list_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +48,7 @@ class _ClubProfilePageBodyWidgetState extends State<ClubProfilePageBodyWidget> {
     final viewModel = context.watch<ClubProfileViewModel>();
     final club = viewModel.club!;
 
-    Widget onRetrieved(bool isLoggedUserClubAdmin) {
+    Widget onRetrieved(({bool isAdmin, int readingsCount}) info) {
       final profileInfos = [
         ClubProfileInfoListItem(
           label: 'Membros',
@@ -57,11 +58,11 @@ class _ClubProfilePageBodyWidgetState extends State<ClubProfilePageBodyWidget> {
         ),
         ClubProfileInfoListItem(
           label: 'Leituras',
-          number: 3,
+          number: info.readingsCount,
           onTap: () => _setSection(ProfileInfoSection.readings),
           selected: selectedProfileInfoSection == ProfileInfoSection.readings,
         ),
-        if (isLoggedUserClubAdmin) ClubProfileInfoListItem(
+        if (info.isAdmin) ClubProfileInfoListItem(
           label: 'Solicitações',
           number: 4,
           onTap: () => _setSection(ProfileInfoSection.requests),
@@ -73,11 +74,19 @@ class _ClubProfilePageBodyWidgetState extends State<ClubProfilePageBodyWidget> {
     }
 
     return AsyncBuilder(
-      future: viewModel.isLoggedUserClubAdmin(),
+      future: _loadProfileInfo(viewModel),
       onRetrieved: onRetrieved,
       onLoading: () => const SizedBox.shrink(),
       onError: (_, _) => const SizedBox.shrink(),
     );
+  }
+
+  Future<({bool isAdmin, int readingsCount})> _loadProfileInfo(
+    ClubProfileViewModel viewModel,
+  ) async {
+    final isAdmin = await viewModel.isLoggedUserClubAdmin();
+    final readingsCount = await viewModel.getClubReadingGoalsCount();
+    return (isAdmin: isAdmin, readingsCount: readingsCount);
   }
 
   Widget _buildProfileInfoDetails(BuildContext context) {
@@ -90,7 +99,7 @@ class _ClubProfilePageBodyWidgetState extends State<ClubProfilePageBodyWidget> {
 
     return switch (selectedProfileInfoSection) {
       ProfileInfoSection.members => const ClubMembersListWidget(),
-      ProfileInfoSection.readings => placeholder,
+      ProfileInfoSection.readings => const ClubReadingsListWidget(),
       ProfileInfoSection.badges => placeholder,
       ProfileInfoSection.requests => placeholder,
       _ => throw UnimplementedError('Section not implemented'),

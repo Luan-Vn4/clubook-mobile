@@ -6,15 +6,13 @@ part 'meeting_creation_dto.g.dart';
 
 @JsonSerializable()
 class MeetingCreationDto {
+  final String readingGoalId;
   final String address;
-  final DateTime date;
-  final String bookId;
   final LatLng latlng;
 
   MeetingCreationDto({
+    required this.readingGoalId,
     required this.address,
-    required this.date,
-    required this.bookId,
     required this.latlng,
   });
 

@@ -340,6 +340,7 @@ abstract final class RoutingConfig {
                   authRepository: context.read(),
                   meetingsRepository: context.read(),
                   bookApiRepository: context.read(),
+                  readingGoalsRepository: context.read(),
                 ),
             child: ScrollBaseLayout(
               appBarVisible: true,

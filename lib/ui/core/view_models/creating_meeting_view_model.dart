@@ -3,6 +3,7 @@ import 'package:booklub/domain/meetings/entities/meeting_creation_dto.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/books/book_api_repository.dart';
 import 'package:booklub/infra/meetings/meetings_repository.dart';
+import 'package:booklub/infra/reading_goals/reading_goals_repository.dart';
 import 'package:booklub/ui/core/view_models/async_change_notifier.dart';
 import 'package:booklub/utils/geo/types/latlng.dart';
 import 'package:booklub/utils/validation/input_validators.dart';
@@ -17,6 +18,7 @@ class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
   final AuthRepository authRepository;
   final MeetingsRepository meetingsRepository;
   final BookApiRepository bookApiRepository;
+  final ReadingGoalsRepository readingGoalsRepository;
 
   final InputValidators inputValidators = InputValidators();
 
@@ -29,7 +31,6 @@ class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
   late final ValueNotifier<LatLng?> latlngInput;
   late final ValueNotifier<TimeOfDay?> timeInput;
 
-  String? readingGoalId;
   BookItem? selectedBookItem;
   bool created = false;
 
@@ -42,6 +43,7 @@ class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
     required this.authRepository,
     required this.meetingsRepository,
     required this.bookApiRepository,
+    required this.readingGoalsRepository,
   }) {
     addressInput = InputWrapper(
       controller: TextEditingController(),
@@ -92,18 +94,8 @@ class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
 
   bool get isValid {
     return addressInput.isValid &&
-        bookTitleInput.isValid &&
-        selectedBookItem != null &&
-        readingGoalId != null &&
         dateInput.value != null &&
-        latlngInput.value != null &&
         timeInput.value != null;
-  }
-
-  DateTime get scheduledDateTime {
-    final d = dateInput.value!;
-    final t = timeInput.value!;
-    return DateTime(d.year, d.month, d.day, t.hour, t.minute);
   }
 
   Future<void> searchBookByTitle() async {
@@ -132,47 +124,40 @@ class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
     }
   }
 
-  Future<bool> createMeeting(String readingGoalId) async {
+  Future<bool> createMeeting(String clubId) async {
     final authData = await authRepository.getAuthData();
     if (authData == null) throw Exception('User não autenticado');
+
+    if (!isValid) {
+      log.w('Dados inválidos para criar meeting');
+      return false;
+    }
 
     super.isLoading = true;
     notifyListeners();
 
-    bool completed;
+    try {
+      final readingGoal = await readingGoalsRepository
+          .findClubCurrentReadingGoal(clubId);
 
-    this.readingGoalId = readingGoalId;
-    if (isValid) {
-      try {
-        final meetingCreationDto = MeetingCreationDto(
-          address: addressInput.text.trim(),
-          date: scheduledDateTime,
-          bookId: selectedBookItem!.id ?? (throw Exception('Livro sem ID')),
-          latlng: LatLng(latitude: 0.1, longitude: 0.2),
-        );
+      final meetingCreationDto = MeetingCreationDto(
+        readingGoalId: readingGoal.id,
+        address: addressInput.text.trim(),
+        latlng: latlngInput.value ?? LatLng(latitude: 0, longitude: 0),
+      );
 
-        final meeting = await meetingsRepository.createMeeting(
-          meetingCreationDto,
-          readingGoalId,
-        );
+      final meeting = await meetingsRepository.createMeeting(meetingCreationDto);
 
-        log.i('Encontro criado: ${meeting.id}');
-        created = true;
-        completed = true;
-      } catch (e, stackTrace) {
-        log.e('Erro ao criar meeting', error: e, stackTrace: stackTrace);
-        created = false;
-        completed = false;
-      } finally {
-        super.isLoading = false;
-        notifyListeners();
-      }
-    } else {
-      log.w('Dados inválidos para criar meeting');
-      completed = false;
+      log.i('Encontro criado: ${meeting.id}');
+      created = true;
+      return true;
+    } catch (e, stackTrace) {
+      log.e('Erro ao criar meeting', error: e, stackTrace: stackTrace);
+      created = false;
+      return false;
+    } finally {
       super.isLoading = false;
       notifyListeners();
     }
-    return completed;
   }
 }

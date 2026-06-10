@@ -20,6 +20,7 @@ class Paginator<T> {
   ) async {
     final paginator = Paginator._(pageSize, pageRetriever);
     final firstPage = await pageRetriever(0, pageSize);
+    paginator._pages[0] = firstPage;
     paginator.totalElements = firstPage.pageInfo.totalElements;
     paginator.totalPages = firstPage.pageInfo.totalPages;
     return paginator;

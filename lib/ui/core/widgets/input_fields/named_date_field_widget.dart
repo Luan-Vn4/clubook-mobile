@@ -15,13 +15,16 @@ class NamedDateFieldWidget extends StatelessWidget {
 
   final DateTime? lastDate;
 
+  final ValueChanged<DateTime>? onDatePicked;
+
   const NamedDateFieldWidget({
     super.key,
     required this.label,
     required this.inputWrapper,
     this.initialDate,
     this.firstDate,
-    this.lastDate
+    this.lastDate,
+    this.onDatePicked,
   });
 
   @override
@@ -55,6 +58,7 @@ class NamedDateFieldWidget extends StatelessWidget {
     if (picked != null) {
       final formattedDate = dateFormatter.format(picked);
       inputWrapper.text = formattedDate;
+      onDatePicked?.call(picked);
     }
   }
 

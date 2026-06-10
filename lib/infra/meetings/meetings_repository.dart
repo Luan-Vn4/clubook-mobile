@@ -21,7 +21,6 @@ class MeetingsRepository {
 
   Future<Meeting> createMeeting(
     MeetingCreationDto dto,
-    String readingGoalId,
   ) async {
     final authToken = (await _authRepository.getAuthData())!.token;
 
@@ -36,7 +35,7 @@ class MeetingsRepository {
       },
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       print('🔴 Erro ao criar meeting: ${response.statusCode}');
       print('🔴 Corpo da resposta: ${response.body}');
       throw Exception('Erro ao criar meeting');

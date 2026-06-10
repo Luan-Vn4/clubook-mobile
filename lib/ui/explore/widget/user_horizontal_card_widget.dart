@@ -1,6 +1,8 @@
+import 'package:booklub/config/routing/routes.dart';
 import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class UserHorizontalCardWidget extends StatelessWidget {
   final User user;
@@ -41,14 +43,20 @@ class UserHorizontalCardWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(user.fullName),
-            Row(spacing: 8, children: [Icon(Icons.groups), Text('10')]),
+            Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.groups),
+                Text(user.totalClubs.toString()),
+              ],
+            ),
           ],
         ),
       ),
     );
 
     return InkWell(
-      onTap: () => (),
+      onTap: () => context.push(Routes.userProfile(userId: user.id)),
       borderRadius: borderRadius,
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: borderRadius),

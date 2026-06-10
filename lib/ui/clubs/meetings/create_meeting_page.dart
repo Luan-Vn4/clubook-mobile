@@ -53,10 +53,15 @@ class CreateMeetingPage extends StatelessWidget {
             inputWrapper: vm.addressInput,
             suffixIcon: Icon(Icons.search),
           ),
-          NamedDateFieldWidget(label: "Data", inputWrapper: vm.dateTextInput),
+          NamedDateFieldWidget(
+            label: "Data",
+            inputWrapper: vm.dateTextInput,
+            onDatePicked: vm.setDate,
+          ),
           NamedTimeFieldWidget(
             label: "Horário",
             inputWrapper: vm.timeTextInput,
+            onTimePicked: (time) => vm.setTime(time, context),
           ),
           NamedTextFieldWidget(
             label: "Leitura",
@@ -74,14 +79,6 @@ class CreateMeetingPage extends StatelessWidget {
   Widget _buildButton(BuildContext context, CreateMeetingViewModel vm) {
     return PurpleRoundedButton("Criar", () async {
       if (_formKey.currentState?.validate() ?? false) {
-        print('📋 Criando meeting com dados:');
-        print('Endereço válido: ${vm.addressInput.isValid}');
-        print('Livro selecionado: ${vm.selectedBookItem?.title}');
-        print('ReadingGoalId: ${vm.readingGoalId}');
-        print('Data: ${vm.dateInput.value}');
-        print('Hora: ${vm.timeInput.value}');
-        print('Localização: ${vm.latlngInput.value}');
-
         final success = await vm.createMeeting(clubId);
         if (context.mounted && success) Navigator.of(context).pop();
       }

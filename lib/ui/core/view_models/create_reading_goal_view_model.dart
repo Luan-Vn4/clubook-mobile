@@ -1,6 +1,4 @@
 import 'package:booklub/domain/entities/books/book_item.dart';
-import 'package:booklub/domain/entities/users/auth_data.dart';
-import 'package:booklub/domain/reading_goals/entities/reading_goal.dart';
 import 'package:booklub/domain/reading_goals/entities/reading_goal_creation_dto.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/books/book_api_repository.dart';
@@ -113,12 +111,15 @@ class CreateReadingGoalViewModel extends AsyncChangeNotifier<void> {
     final authData = await authRepository.getAuthData();
     if (authData == null) throw Exception('O usuário não está autenticado');
 
+    if (!isValid) {
+      log.d('dados invalidos para criar reading goal');
+      return false;
+    }
+
     super.isLoading = true;
     notifyListeners();
 
-    final bool completed;
-
-    if (isValid) {
+    try {
       final dto = CreateReadingGoalDto(
         bookId: selectedBookItem!.id ?? (throw Exception('Livro sem ID')),
         startDate: startDateInput.value!.toIso8601String().substring(0, 10),
@@ -126,15 +127,14 @@ class CreateReadingGoalViewModel extends AsyncChangeNotifier<void> {
       );
 
       await readingGoalsRepository.createReadingGoal(dto, clubId);
-      completed = true;
-    } else {
-      log.d('dados invalidos para criar reading goal');
-      completed = false;
+      created = true;
+      return true;
+    } catch (e, stackTrace) {
+      log.e('Erro ao criar reading goal', error: e, stackTrace: stackTrace);
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    isLoading = false;
-    created = true;
-    notifyListeners();
-    return completed;
   }
 }
