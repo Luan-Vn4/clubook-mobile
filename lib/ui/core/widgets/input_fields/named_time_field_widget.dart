@@ -6,8 +6,6 @@ class NamedTimeFieldWidget extends StatelessWidget {
   final String label;
   final InputWrapper inputWrapper;
   final TimeOfDay? initialTime;
-  final ValueChanged<TimeOfDay>? onTimePicked;
-
   final void Function(TimeOfDay)? onTimeSelected;
 
   const NamedTimeFieldWidget({
