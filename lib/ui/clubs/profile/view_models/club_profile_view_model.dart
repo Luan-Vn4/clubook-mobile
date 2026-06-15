@@ -65,20 +65,33 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
 
   Club? get club => payload;
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   Future<void> _setClub(String clubId) async {
+    if (_disposed) return;
+
     clubId = clubId;
     isLoading = true;
     notifyListeners();
 
     try {
       _club = await _clubRepository.findClubById(clubId);
+      if (_disposed) return;
       await loadClubStats();
     } catch (e, trace) {
       error = (object: e, stackTrace: trace);
       _club = null;
     } finally {
-      isLoading = false;
-      notifyListeners();
+      if (!_disposed) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
   }
 

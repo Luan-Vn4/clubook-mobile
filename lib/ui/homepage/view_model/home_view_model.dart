@@ -30,12 +30,24 @@ class HomeViewModel extends AsyncChangeNotifier<HomePayload> {
   HomePayload? get payload => _payload;
   HomePayload? _payload;
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   Future<void> _loadData() async {
+    if (_disposed) return;
+
     isLoading = true;
     notifyListeners();
 
     try {
       final authData = await authRepository.getAuthData();
+      if (_disposed) return;
+
       final userId = authData?.user.id;
 
       if (userId == null) {
@@ -43,13 +55,19 @@ class HomeViewModel extends AsyncChangeNotifier<HomePayload> {
       }
 
       final clubsPaginator = await clubRepository.findClubsByUserId(10, userId);
+      if (_disposed) return;
+
       final clubsFirstPage = await clubsPaginator[0];
       final myClubs = clubsFirstPage.content;
 
       final activitiesPaginator = await activitiesRepository
           .findActivitiesForUser(userId, 5);
+      if (_disposed) return;
+
       final activitiesFirstPage = await activitiesPaginator[0];
       final recentActivities = activitiesFirstPage.content;
+
+      if (_disposed) return;
 
       _payload = HomePayload(
         myClubs: myClubs,
@@ -57,11 +75,14 @@ class HomeViewModel extends AsyncChangeNotifier<HomePayload> {
       );
       error = null;
     } catch (e, stack) {
+      if (_disposed) return;
       error = (object: e, stackTrace: stack);
       _payload = null;
     } finally {
-      isLoading = false;
-      notifyListeners();
+      if (!_disposed) {
+        isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
