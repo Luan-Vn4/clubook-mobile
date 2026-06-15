@@ -2,11 +2,11 @@ import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/utils/validation/input_validators.dart';
 import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class RecoverPasswordViewModel extends ChangeNotifier {
 
-  final log = Logger();
+  final log = AppLogger.create();
 
   final AuthRepository authRepository;
 

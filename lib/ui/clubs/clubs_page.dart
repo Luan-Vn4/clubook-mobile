@@ -5,7 +5,7 @@ import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
 import 'package:booklub/ui/core/widgets/section_selector_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart' hide Page;
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -26,7 +26,7 @@ class _ClubsPageState extends State<ClubsPage> {
 
   ClubsPageSection section = ClubsPageSection.participating;
 
-  final Logger logger = Logger();
+  final Logger logger = AppLogger.create();
 
   @override
   Widget build(BuildContext context) {

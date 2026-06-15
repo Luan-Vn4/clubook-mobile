@@ -9,10 +9,10 @@ import 'package:booklub/utils/validation/input_validators.dart';
 import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
-  final Logger log = Logger(printer: SimplePrinter());
+  final Logger log = AppLogger.create();
 
   final AuthRepository authRepository;
   final MeetingsRepository meetingsRepository;
@@ -96,7 +96,6 @@ class CreateMeetingViewModel extends AsyncChangeNotifier<void> {
         selectedBookItem != null &&
         readingGoalId != null &&
         dateInput.value != null &&
-        latlngInput.value != null &&
         timeInput.value != null;
   }
 

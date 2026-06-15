@@ -7,7 +7,7 @@ import 'package:booklub/ui/core/widgets/section_selector_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -22,7 +22,7 @@ class ClubFeedWidget extends StatefulWidget {
 
 class _ClubFeedWidgetState extends State<ClubFeedWidget> {
 
-  final logger = Logger();
+  final logger = AppLogger.create();
 
   ActivityFilter filter = ActivityFilter.all;
 

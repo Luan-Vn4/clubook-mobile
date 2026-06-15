@@ -1,9 +1,12 @@
 import 'package:booklub/config/routing/routes.dart';
+import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/ui/core/widgets/buttons/purple_rounded_button.dart';
 import 'package:booklub/ui/core/widgets/input_fields/named_text_field_widget.dart';
 import 'package:booklub/ui/login/view_models/login_view_model.dart';
 import 'package:booklub/ui/login/widgets/cadastrar_clickable_text.dart';
 import 'package:booklub/ui/login/widgets/esqueceu_senha_clickable_text.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
+import 'package:booklub/utils/toast/toast_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +14,8 @@ import 'package:provider/provider.dart';
 class LoginPage extends StatelessWidget {
 
   final _formKey = GlobalKey<FormState>();
+
+  final log = AppLogger.create();
 
   late final LoginViewModel loginViewModel;
 
@@ -58,9 +63,30 @@ class LoginPage extends StatelessWidget {
   }
 
   void _onSubmit(BuildContext context) async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final succeded = await loginViewModel.login();
-      if (context.mounted && succeded) context.go(Routes.home);
+    log.d('Botão Entrar clicado');
+    final isValid = _formKey.currentState?.validate() ?? false;
+    log.d('Formulário válido: $isValid');
+    if (isValid) {
+      try {
+        final succeded = await loginViewModel.login();
+        log.d('Login resultado: $succeded');
+        if (context.mounted && succeded) context.go(Routes.home);
+      } on AuthException catch (e, stack) {
+        log.e('AuthException no login', error: e, stackTrace: stack);
+        if (context.mounted) {
+          ToastHelper.showError(context, e.message);
+        }
+      } on NetworkException catch (e, stack) {
+        log.e('NetworkException no login', error: e, stackTrace: stack);
+        if (context.mounted) {
+          ToastHelper.showError(context, e.message);
+        }
+      } catch (e, stack) {
+        log.e('Erro inesperado no login', error: e, stackTrace: stack);
+        if (context.mounted) {
+          ToastHelper.showError(context, 'Erro inesperado. Tente novamente.');
+        }
+      }
     }
   }
 

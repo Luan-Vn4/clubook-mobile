@@ -8,12 +8,12 @@ import 'package:booklub/ui/core/view_models/async_change_notifier.dart';
 import 'package:booklub/utils/validation/input_validators.dart';
 import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class CreateClubViewModel extends AsyncChangeNotifier<void> {
 
   // ### Dependencies
-  final Logger log = Logger(printer: SimplePrinter());
+  final Logger log = AppLogger.create();
 
   final AuthRepository authRepository;
 

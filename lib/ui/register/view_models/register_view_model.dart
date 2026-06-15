@@ -5,7 +5,7 @@ import 'package:booklub/infra/io/io_repository.dart';
 import 'package:booklub/utils/validation/input_validators.dart';
 import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class RegisterViewModel extends ChangeNotifier {
 
@@ -15,7 +15,7 @@ class RegisterViewModel extends ChangeNotifier {
 
   final InputValidators inputValidators;
 
-  final Logger log = Logger();
+  final Logger log = AppLogger.create();
 
   String? error;
 

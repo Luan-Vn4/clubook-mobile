@@ -4,13 +4,13 @@ import 'package:booklub/ui/clubs/profile/widgets/club_profile_page_body_widget.d
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart' hide Page;
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 class ClubProfilePage extends StatelessWidget {
 
-  final Logger logger = Logger(printer: SimplePrinter());
+  final Logger logger = AppLogger.create();
 
   ClubProfilePage({
     super.key,

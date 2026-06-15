@@ -7,7 +7,7 @@ import 'package:booklub/utils/validation/input_validators.dart';
 import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class EditUserProfileViewModel extends ChangeNotifier {
   final UserRepository userRepository;
@@ -15,7 +15,7 @@ class EditUserProfileViewModel extends ChangeNotifier {
   final IORepository ioRepository;
   final InputValidators inputValidators;
 
-  final Logger log = Logger();
+  final Logger log = AppLogger.create();
 
   late ValueNotifier<File?> profilePicture;
   late InputWrapper firstNameInput;

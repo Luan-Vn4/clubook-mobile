@@ -36,11 +36,11 @@ import 'package:booklub/ui/user/view_models/edit_user_profile_view_model.dart';
 import 'package:booklub/ui/user/view_models/user_profile_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 import 'package:provider/provider.dart';
 
 abstract final class RoutingConfig {
-  static final Logger logger = Logger(printer: SimplePrinter());
+  static final Logger logger = AppLogger.create();
 
   static GoRouter createRouter(AuthViewModel authViewModel) => GoRouter(
     initialLocation: Routes.home,
