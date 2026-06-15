@@ -26,15 +26,13 @@ class ActivitiesRepository {
     final authToken = (await _authRepository.getAuthData())!.token;
 
     return Paginator.create(pageSize, (page, pageSize) async {
-      final queryParams = <String, String>{
+      final queryParams = <String, dynamic>{
         'page': page.toString(),
         'size': pageSize.toString(),
       };
 
       if (types != null && types.isNotEmpty) {
-        for (final type in types) {
-          queryParams.addAll({'types': type.toApiString()});
-        }
+        queryParams['type'] = types.map((t) => t.toApiString()).toList();
       }
 
       final uri = Uri.parse(
