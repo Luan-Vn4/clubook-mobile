@@ -1,14 +1,18 @@
 import 'package:booklub/domain/activities/entities/activity.dart';
 import 'package:booklub/domain/entities/clubs/club.dart';
+import 'package:booklub/domain/entities/books/book_item.dart';
 import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/domain/meetings/entities/meeting.dart';
 import 'package:booklub/domain/reading_goals/entities/reading_goal.dart';
+import 'package:booklub/domain/reading_goals/entities/reading_goal_with_book.dart';
 import 'package:booklub/infra/activities/activities_repository.dart';
+import 'package:booklub/infra/books/book_api_repository.dart';
 import 'package:booklub/infra/clubs/club_repository.dart';
 import 'package:booklub/infra/meetings/meetings_repository.dart';
 import 'package:booklub/infra/reading_goals/reading_goals_repository.dart';
 import 'package:booklub/ui/core/view_models/async_change_notifier.dart';
 import 'package:booklub/ui/core/view_models/auth_view_model.dart';
+import 'package:booklub/utils/pagination/page.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 
 class ClubProfileViewModel extends AsyncChangeNotifier {
@@ -22,6 +26,8 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
 
   final ActivitiesRepository _activitiesRepository;
 
+  final BookApiRepository _bookApiRepository;
+
   final AuthViewModel _authViewModel;
 
   final String clubId;
@@ -32,6 +38,7 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     required ReadingGoalsRepository readingGoalsRepository,
     required MeetingsRepository meetingsRepository,
     required ActivitiesRepository activityRepository,
+    required BookApiRepository bookApiRepository,
     required AuthViewModel authViewModel,
     required this.clubId,
   }):
@@ -39,6 +46,7 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     _readingGoalsRepository = readingGoalsRepository,
     _meetingsRepository = meetingsRepository,
     _activitiesRepository = activityRepository,
+    _bookApiRepository = bookApiRepository,
     _authViewModel = authViewModel
   {
     _setClub(clubId);
@@ -49,6 +57,12 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
   @override
   Club? get payload => _club;
 
+  int? _totalReadingGoals;
+  int? _totalPendingRequests;
+
+  int? get totalReadingGoals => _totalReadingGoals;
+  int? get totalPendingRequests => _totalPendingRequests;
+
   Club? get club => payload;
 
   Future<void> _setClub(String clubId) async {
@@ -58,6 +72,7 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
 
     try {
       _club = await _clubRepository.findClubById(clubId);
+      await loadClubStats();
     } catch (e, trace) {
       error = (object: e, stackTrace: trace);
       _club = null;
@@ -85,6 +100,33 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     return _readingGoalsRepository.findReadingGoalsByClubId(clubId, pageSize);
   }
 
+  Future<Paginator<ReadingGoalWithBook>> getClubReadingGoalsWithBooks(int pageSize) async {
+    final goalsPaginator = await getClubReadingGoals(pageSize);
+
+    return Paginator.create(pageSize, (page, pageSize) async {
+      final pageGoals = await goalsPaginator[page];
+      final enrichedGoals = await Future.wait(
+        pageGoals.content.map((goal) async {
+          try {
+            final book = await _bookApiRepository.getBookById(goal.bookId);
+            return ReadingGoalWithBook.fromReadingGoal(goal, book);
+          } catch (e) {
+            // If book fetch fails, return goal with empty book
+            return ReadingGoalWithBook.fromReadingGoal(
+              goal,
+              BookItem(title: goal.bookId),
+            );
+          }
+        }),
+      );
+
+      return Page(
+        content: enrichedGoals,
+        pageInfo: pageGoals.pageInfo,
+      );
+    });
+  }
+
   Future<Paginator<Meeting>> getClubMeetings(int pageSize) async {
     return _meetingsRepository.findMeetingsByClubId(clubId, pageSize);
   }
@@ -96,6 +138,49 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     return _activitiesRepository.findActivitiesByClubId(
       clubId, pageSize, types: types,
     );
+  }
+
+  Future<void> loadClubStats() async {
+    try {
+      final readingGoalsPaginator = await getClubReadingGoals(1);
+      _totalReadingGoals = readingGoalsPaginator.totalElements;
+    } catch (e) {
+      _totalReadingGoals = 0;
+    }
+
+    try {
+      final isAdmin = await isLoggedUserClubAdmin();
+      if (isAdmin) {
+        final pendingRequestsPaginator = await getClubPendingRequests(1);
+        _totalPendingRequests = pendingRequestsPaginator.totalElements;
+      } else {
+        _totalPendingRequests = 0;
+      }
+    } catch (e) {
+      _totalPendingRequests = 0;
+    }
+
+    notifyListeners();
+  }
+
+  Future<Paginator<dynamic>> getClubPendingRequests(int pageSize) async {
+    return _clubRepository.findPendingRequests(clubId, pageSize);
+  }
+
+  Future<void> acceptRequest(String userId) async {
+    checkClubLoaded();
+    await _clubRepository.acceptRequest(clubId, userId);
+
+    // Reload stats to update counts
+    await loadClubStats();
+  }
+
+  Future<void> denyRequest(String userId) async {
+    checkClubLoaded();
+    await _clubRepository.denyRequest(clubId, userId);
+
+    // Reload stats to update counts
+    await loadClubStats();
   }
 
 }

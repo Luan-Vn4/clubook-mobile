@@ -107,6 +107,7 @@ abstract final class RoutingConfig {
                   readingGoalsRepository: context.read(),
                   meetingsRepository: context.read(),
                   activityRepository: context.read(),
+                  bookApiRepository: context.read(),
                   authViewModel: context.read(),
                   clubId: clubId!,
                 ),

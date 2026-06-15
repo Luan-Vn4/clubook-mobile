@@ -2,6 +2,8 @@ import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dar
 import 'package:booklub/ui/clubs/profile/widgets/_club_feed_widget.dart';
 import 'package:booklub/ui/clubs/profile/widgets/_club_members_list_widget.dart';
 import 'package:booklub/ui/clubs/profile/widgets/_club_profile_info_list_widget.dart';
+import 'package:booklub/ui/clubs/profile/widgets/_club_reading_goals_list_widget.dart';
+import 'package:booklub/ui/clubs/profile/widgets/_club_requests_list_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -57,13 +59,13 @@ class _ClubProfilePageBodyWidgetState extends State<ClubProfilePageBodyWidget> {
         ),
         ClubProfileInfoListItem(
           label: 'Leituras',
-          number: 3,
+          number: viewModel.totalReadingGoals ?? 0,
           onTap: () => _setSection(ProfileInfoSection.readings),
           selected: selectedProfileInfoSection == ProfileInfoSection.readings,
         ),
         if (isLoggedUserClubAdmin) ClubProfileInfoListItem(
           label: 'Solicitações',
-          number: 4,
+          number: viewModel.totalPendingRequests ?? 0,
           onTap: () => _setSection(ProfileInfoSection.requests),
           selected: selectedProfileInfoSection == ProfileInfoSection.requests,
         ),
@@ -90,9 +92,9 @@ class _ClubProfilePageBodyWidgetState extends State<ClubProfilePageBodyWidget> {
 
     return switch (selectedProfileInfoSection) {
       ProfileInfoSection.members => const ClubMembersListWidget(),
-      ProfileInfoSection.readings => placeholder,
+      ProfileInfoSection.readings => const ClubReadingGoalsListWidget(),
       ProfileInfoSection.badges => placeholder,
-      ProfileInfoSection.requests => placeholder,
+      ProfileInfoSection.requests => const ClubRequestsListWidget(),
       _ => throw UnimplementedError('Section not implemented'),
     };
   }
