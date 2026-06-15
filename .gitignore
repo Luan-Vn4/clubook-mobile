@@ -98,3 +98,7 @@ app.*.map.json
 
 # Env
 .env
+.opencode
+# CocoIndex Code (ccc)
+.cocoindex_code
+.pi

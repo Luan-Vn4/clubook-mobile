@@ -2,11 +2,11 @@ import 'package:booklub/domain/entities/users/auth_data.dart';
 import 'package:booklub/domain/entities/users/auth_token.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class AuthViewModel extends ChangeNotifier {
 
-  final logger = Logger();
+  final logger = AppLogger.create();
 
   final AuthRepository _authRepository;
 

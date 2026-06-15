@@ -20,19 +20,26 @@ class ActivitiesRepository {
 
   Future<Paginator<Activity>> findActivitiesByClubId(
     String clubId,
-    int pageSize,
-  ) async {
+    int pageSize, {
+    List<ActivityType>? types,
+  }) async {
     final authToken = (await _authRepository.getAuthData())!.token;
 
     return Paginator.create(pageSize, (page, pageSize) async {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'size': pageSize.toString(),
+      };
+
+      if (types != null && types.isNotEmpty) {
+        for (final type in types) {
+          queryParams.addAll({'types': type.toApiString()});
+        }
+      }
+
       final uri = Uri.parse(
         '$_apiUrl/api/v1/clubs/$clubId/activities',
-      ).replace(
-        queryParameters: {
-          'page': page.toString(),
-          'size': pageSize.toString(),
-        },
-      );
+      ).replace(queryParameters: queryParams);
 
       final response = await http.get(
         uri,

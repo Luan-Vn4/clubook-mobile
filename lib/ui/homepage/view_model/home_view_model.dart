@@ -1,8 +1,8 @@
-import 'package:booklub/infra/clubs/club_repository.dart';
-import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/activities/activities_repository.dart';
-import 'package:booklub/domain/entities/clubs/club.dart';
+import 'package:booklub/infra/auth/auth_repository.dart';
+import 'package:booklub/infra/clubs/club_repository.dart';
 import 'package:booklub/domain/activities/entities/activity.dart';
+import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:booklub/ui/core/view_models/async_change_notifier.dart';
 
@@ -15,13 +15,13 @@ class HomePayload {
 
 class HomeViewModel extends AsyncChangeNotifier<HomePayload> {
   final ClubRepository clubRepository;
-  final AuthRepository authRepository;
   final ActivitiesRepository activitiesRepository;
+  final AuthRepository authRepository;
 
   HomeViewModel({
     required this.clubRepository,
-    required this.authRepository,
     required this.activitiesRepository,
+    required this.authRepository,
   }) {
     _loadData();
   }

@@ -8,12 +8,14 @@ class NamedTimeFieldWidget extends StatelessWidget {
   final TimeOfDay? initialTime;
   final ValueChanged<TimeOfDay>? onTimePicked;
 
+  final void Function(TimeOfDay)? onTimeSelected;
+
   const NamedTimeFieldWidget({
     super.key,
     required this.label,
     required this.inputWrapper,
     this.initialTime,
-    this.onTimePicked,
+    this.onTimeSelected,
   });
 
   @override
@@ -51,10 +53,9 @@ class NamedTimeFieldWidget extends StatelessWidget {
     );
 
     if (picked != null) {
-      final formattedTime =
-          picked.hour.toString().padLeft(2, '0') + ':' + picked.minute.toString().padLeft(2, '0');
+      final formattedTime = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       inputWrapper.text = formattedTime;
-      onTimePicked?.call(picked);
+      onTimeSelected?.call(picked);
     }
   }
 }

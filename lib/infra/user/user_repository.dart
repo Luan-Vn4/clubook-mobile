@@ -9,7 +9,7 @@ import 'package:booklub/utils/http/http_error_dto.dart';
 import 'package:booklub/utils/pagination/page.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class UserException implements Exception {
   final String message;
@@ -24,7 +24,7 @@ class UserRepository {
 
   final String _apiUrl;
 
-  final _logger = Logger();
+  final _logger = AppLogger.create();
 
   final AuthRepository _authRepository;
 

@@ -9,12 +9,29 @@ class MeetingDefinedActivity extends ClubActivity {
 
   final String meetingId;
 
+  final String? meetingAddress;
+
+  final DateTime? meetingDate;
+
+  final String? bookId;
+
+  final String? bookTitle;
+
+  final String? bookCoverUrl;
+
   MeetingDefinedActivity({
     required super.id,
     required super.createdAt,
     required super.type,
     required super.clubId,
     required this.meetingId,
+    super.clubName,
+    super.clubPhotoUrl,
+    this.meetingAddress,
+    this.meetingDate,
+    this.bookId,
+    this.bookTitle,
+    this.bookCoverUrl,
   });
 
   factory MeetingDefinedActivity.fromJson(Map<String, dynamic> json)  => _$MeetingDefinedActivityFromJson(json);

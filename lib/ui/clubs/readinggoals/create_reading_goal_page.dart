@@ -57,12 +57,12 @@ class CreateReadingGoalPage extends StatelessWidget {
           NamedDateFieldWidget(
             label: "Data Início",
             inputWrapper: vm.startDateTextInput,
-            onDatePicked: vm.setStartDate,
+            onDateSelected: vm.setStartDate,
           ),
           NamedDateFieldWidget(
             label: "Data Final",
             inputWrapper: vm.endDateTextInput,
-            onDatePicked: vm.setEndDate,
+            onDateSelected: vm.setEndDate,
           ),
         ],
       ),

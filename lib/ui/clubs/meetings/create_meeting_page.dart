@@ -56,12 +56,12 @@ class CreateMeetingPage extends StatelessWidget {
           NamedDateFieldWidget(
             label: "Data",
             inputWrapper: vm.dateTextInput,
-            onDatePicked: vm.setDate,
+            onDateSelected: vm.setDate,
           ),
           NamedTimeFieldWidget(
             label: "Horário",
             inputWrapper: vm.timeTextInput,
-            onTimePicked: (time) => vm.setTime(time, context),
+            onTimeSelected: (time) => vm.setTime(time, context),
           ),
           NamedTextFieldWidget(
             label: "Leitura",

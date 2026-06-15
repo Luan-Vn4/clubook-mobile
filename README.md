@@ -1,9 +1,10 @@
 # MOBILE-25.1-Booklub
+<!-- Diff test marker - VS Code edit test -->
 
 ---
 
 ## 📚 1. Sobre o *Booklub*
-*Booklub* é uma plataforma social dedicada a conectar leitores em clubes de 
+*Booklub* é uma plataforma social digital dedicada a conectar leitores apaixonados em clubes de 
 leitura. O objetivo é proporcionar um ambiente colaborativo onde membros possam 
 discutir livros, definir leituras mensais, agendar encontros e compartilhar seu 
 progresso de leitura.

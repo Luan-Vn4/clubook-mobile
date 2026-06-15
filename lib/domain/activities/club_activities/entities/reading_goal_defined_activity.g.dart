@@ -14,6 +14,18 @@ ReadingGoalDefinedActivity _$ReadingGoalDefinedActivityFromJson(
   type: $enumDecode(_$ActivityTypeEnumMap, json['type']),
   clubId: json['clubId'] as String,
   readingGoalId: json['readingGoalId'] as String,
+  clubName: json['clubName'] as String?,
+  clubPhotoUrl: json['clubPhotoUrl'] as String?,
+  goalStartDate:
+      json['goalStartDate'] == null
+          ? null
+          : DateTime.parse(json['goalStartDate'] as String),
+  goalEndDate:
+      json['goalEndDate'] == null
+          ? null
+          : DateTime.parse(json['goalEndDate'] as String),
+  bookTitle: json['bookTitle'] as String?,
+  bookCoverUrl: json['bookCoverUrl'] as String?,
 );
 
 Map<String, dynamic> _$ReadingGoalDefinedActivityToJson(
@@ -23,7 +35,13 @@ Map<String, dynamic> _$ReadingGoalDefinedActivityToJson(
   'createdAt': instance.createdAt.toIso8601String(),
   'type': _$ActivityTypeEnumMap[instance.type]!,
   'clubId': instance.clubId,
+  'clubName': instance.clubName,
+  'clubPhotoUrl': instance.clubPhotoUrl,
   'readingGoalId': instance.readingGoalId,
+  'goalStartDate': instance.goalStartDate?.toIso8601String(),
+  'goalEndDate': instance.goalEndDate?.toIso8601String(),
+  'bookTitle': instance.bookTitle,
+  'bookCoverUrl': instance.bookCoverUrl,
 };
 
 const _$ActivityTypeEnumMap = {

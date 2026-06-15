@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/domain/entities/clubs/club_creation_dto.dart';
+import 'package:booklub/domain/clubs/entities/club_pending_request.dart';
 import 'package:booklub/domain/entities/users/auth_data.dart';
 import 'package:booklub/domain/entities/users/auth_token.dart';
 import 'package:booklub/domain/entities/users/user.dart';
@@ -11,7 +12,7 @@ import 'package:booklub/utils/http/http_error_dto.dart';
 import 'package:booklub/utils/pagination/page.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:http/http.dart' as http;
-import 'package:logger/logger.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 
 class CreateClubException implements Exception {
 
@@ -26,7 +27,7 @@ class CreateClubException implements Exception {
 
 class ClubRepository {
 
-  final _logger = Logger();
+  final _logger = AppLogger.create();
 
   final String _apiUrl;
 
@@ -260,6 +261,74 @@ class ClubRepository {
         (json) => User.fromJson(json as Map<String, dynamic>),
       );
     });
+  }
+
+  Future<Paginator<ClubPendingRequest>> findPendingRequests(String clubId, int pageSize) async {
+    final authToken = await _authToken;
+
+    return Paginator.create(pageSize, (page, size) async {
+      final uri = Uri.parse(
+        '$_apiUrl/api/v1/clubs/$clubId/requests'
+      ).replace(
+        queryParameters: {
+          'page': page.toString(),
+          'size': size.toString(),
+        }
+      );
+
+      final response = await http.get(
+        uri,
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+          HttpHeaders.authorizationHeader: authToken.toString(),
+        }
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Erro ao buscar solicitações do clube com ID $clubId');
+      }
+
+      return Page<ClubPendingRequest>.fromJson(
+        jsonDecode(response.body),
+        (json) => ClubPendingRequest.fromJson(json as Map<String, dynamic>),
+      );
+    });
+  }
+
+  Future<void> acceptRequest(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse('$_apiUrl/api/v1/clubs/$clubId/requests/$userId/accept');
+
+    final response = await http.post(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao aceitar solicitação do usuário $userId para o clube $clubId');
+    }
+  }
+
+  Future<void> denyRequest(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse('$_apiUrl/api/v1/clubs/$clubId/requests/$userId/deny');
+
+    final response = await http.delete(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao negar solicitação do usuário $userId para o clube $clubId');
+    }
   }
 
 }

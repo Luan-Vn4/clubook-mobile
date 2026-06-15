@@ -50,8 +50,9 @@ class HorizontalReadingGoalCardWidget extends StatelessWidget {
 
     return HorizontalClubContentCardWithBookCover(
       title: 'Meta de Leitura',
-      club: club,
-      bookItem: bookItem,
+      clubName: club.name,
+      clubPhotoUrl: club.imageUrl,
+      bookCoverUrl: bookItem.thumbnail,
       createdAt: readingGoal.createdAt,
       showClubHeader: showClubHeader,
       children: [
