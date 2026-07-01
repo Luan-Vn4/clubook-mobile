@@ -17,6 +17,8 @@ class NamedDateFieldWidget extends StatelessWidget {
 
   final void Function(DateTime)? onDateSelected;
 
+  final Widget? prefixIcon;
+
   const NamedDateFieldWidget({
     super.key,
     required this.label,
@@ -25,6 +27,7 @@ class NamedDateFieldWidget extends StatelessWidget {
     this.firstDate,
     this.lastDate,
     this.onDateSelected,
+    this.prefixIcon,
   });
 
   @override
@@ -34,7 +37,8 @@ class NamedDateFieldWidget extends StatelessWidget {
       child: AbsorbPointer(
         child: NamedTextFieldWidget(
           label: label,
-          inputWrapper: inputWrapper
+          inputWrapper: inputWrapper,
+          prefixIcon: prefixIcon,
         ),
       ),
     );

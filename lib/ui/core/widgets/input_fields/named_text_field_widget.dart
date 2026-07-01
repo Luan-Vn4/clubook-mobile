@@ -12,6 +12,8 @@ class NamedTextFieldWidget extends StatefulWidget {
 
   final Widget? suffixIcon;
 
+  final Widget? prefixIcon;
+
   final ValueChanged<String>? onChanged;
 
   const NamedTextFieldWidget({
@@ -20,6 +22,7 @@ class NamedTextFieldWidget extends StatefulWidget {
     required this.inputWrapper,
     this.hidable = false,
     this.suffixIcon,
+    this.prefixIcon,
     this.onChanged,
   });
 
@@ -97,6 +100,7 @@ class _NamedTextFieldWidgetState extends State<NamedTextFieldWidget> {
         enabledBorder: enabledBorder,
         focusedBorder: focusedBorder,
         errorBorder: errorBorder,
+        prefixIcon: widget.prefixIcon,
         suffixIcon: suffixIcon,
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),

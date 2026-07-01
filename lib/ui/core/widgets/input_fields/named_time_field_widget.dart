@@ -7,6 +7,7 @@ class NamedTimeFieldWidget extends StatelessWidget {
   final InputWrapper inputWrapper;
   final TimeOfDay? initialTime;
   final void Function(TimeOfDay)? onTimeSelected;
+  final Widget? prefixIcon;
 
   const NamedTimeFieldWidget({
     super.key,
@@ -14,6 +15,7 @@ class NamedTimeFieldWidget extends StatelessWidget {
     required this.inputWrapper,
     this.initialTime,
     this.onTimeSelected,
+    this.prefixIcon,
   });
 
   @override
@@ -24,6 +26,7 @@ class NamedTimeFieldWidget extends StatelessWidget {
         child: NamedTextFieldWidget(
           label: label,
           inputWrapper: inputWrapper,
+          prefixIcon: prefixIcon,
         ),
       ),
     );
