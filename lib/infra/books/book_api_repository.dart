@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:booklub/domain/entities/books/book_club_stats.dart';
 import 'package:booklub/domain/entities/books/book_item.dart';
+import 'package:booklub/domain/entities/books/book_rating.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/utils/pagination/page.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
@@ -88,5 +90,53 @@ class BookApiRepository {
 
     final json = jsonDecode(response.body);
     return BookItem.fromJson(json);
+  }
+
+  Future<List<BookRating>> getBookRatings(String volumeId) async {
+    final authToken = (await _authRepository.getAuthData())!.token;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/books/$volumeId/book-ratings',
+    ).replace(queryParameters: {'page': '0', 'size': '20'});
+
+    final response = await http.get(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao buscar avaliações do livro');
+    }
+
+    final page = Page<BookRating>.fromJson(
+      jsonDecode(response.body),
+      (json) => BookRating.fromJson(json as Map<String, dynamic>),
+    );
+    return page.content;
+  }
+
+  Future<BookClubStats> getBookClubStats(String volumeId) async {
+    final authToken = (await _authRepository.getAuthData())!.token;
+
+    final uri = Uri.parse('$_apiUrl/api/v1/books/$volumeId/club-stats');
+
+    final response = await http.get(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao buscar estatísticas do livro');
+    }
+
+    return BookClubStats.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 }

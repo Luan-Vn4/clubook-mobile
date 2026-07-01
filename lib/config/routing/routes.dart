@@ -22,6 +22,9 @@ abstract final class Routes {
 
   static String individualBook({String bookId = ':id'}) => '$book/$bookId';
 
+  static String readingGoalDetail({String readingGoalId = ':id'}) =>
+      '/reading-goals/$readingGoalId';
+
   static String explore = '/explore';
 
   static const String notifications = '/notifications';

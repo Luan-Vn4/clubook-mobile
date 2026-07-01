@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:booklub/domain/entities/io/picked_image.dart';
 import 'package:booklub/domain/entities/users/user_creation_dto.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/io/io_repository.dart';
@@ -21,7 +21,7 @@ class RegisterViewModel extends ChangeNotifier {
 
   bool isLoading = false;
 
-  late ValueNotifier<File?> profilePicture;
+  late ValueNotifier<PickedImage?> profilePicture;
 
   late InputWrapper firstNameInput;
 
@@ -109,6 +109,7 @@ class RegisterViewModel extends ChangeNotifier {
       firstName: firstNameInput.text,
       lastName: lastNameInput.text,
       password: passwordInput.text,
+      birthDate: birthDateInput.text.trim().isEmpty ? null : birthDateInput.text,
       image: profilePicture.value,
     );
 

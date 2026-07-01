@@ -17,6 +17,9 @@ class User {
 
   final String? imageUrl;
 
+  @JsonKey(defaultValue: '')
+  final String birthDate;
+
   @JsonKey(defaultValue: 0)
   final int totalClubs;
 
@@ -29,6 +32,7 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.imageUrl,
+    this.birthDate = '',
     this.totalClubs = 0,
   });
 

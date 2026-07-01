@@ -1,6 +1,8 @@
 import 'package:booklub/ui/core/view_models/async_change_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:booklub/domain/entities/books/book_club_stats.dart';
 import 'package:booklub/domain/entities/books/book_item.dart';
+import 'package:booklub/domain/entities/books/book_rating.dart';
 import 'package:booklub/infra/books/book_api_repository.dart';
 
 class BookProfileViewModel extends AsyncChangeNotifier<BookItem> {
@@ -16,10 +18,25 @@ class BookProfileViewModel extends AsyncChangeNotifier<BookItem> {
 
   BookItem? _book;
 
+  BookClubStats? _clubStats;
+
+  List<BookRating> _ratings = const [];
+
   @override
   BookItem? get payload => _book;
 
   BookItem? get book => payload;
+
+  BookClubStats? get clubStats => _clubStats;
+
+  List<BookRating> get ratings => _ratings;
+
+  /// Average star rating across all reviews, or null if there are none.
+  double? get averageRating {
+    if (_ratings.isEmpty) return null;
+    final sum = _ratings.fold<int>(0, (acc, r) => acc + r.rating);
+    return sum / _ratings.length;
+  }
 
   Future<void> _setBook(String volumeId) async {
     isLoading = true;
@@ -39,6 +56,22 @@ class BookProfileViewModel extends AsyncChangeNotifier<BookItem> {
       isLoading = false;
       print('Book loaded: $_book');
       notifyListeners();
+    }
+
+    // Club stats are non-critical: a failure here must not break the page.
+    try {
+      _clubStats = await _bookRepository.getBookClubStats(volumeId);
+      notifyListeners();
+    } catch (e, trace) {
+      print('Erro ao carregar estatísticas: $e\nStack trace: $trace');
+    }
+
+    // Reviews are non-critical too.
+    try {
+      _ratings = await _bookRepository.getBookRatings(volumeId);
+      notifyListeners();
+    } catch (e, trace) {
+      print('Erro ao carregar avaliações: $e\nStack trace: $trace');
     }
   }
 

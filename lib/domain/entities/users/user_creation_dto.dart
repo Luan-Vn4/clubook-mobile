@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:booklub/domain/entities/io/picked_image.dart';
 import 'package:booklub/utils/http/http_utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,7 +12,9 @@ class UserCreationDTO {
 
   final String lastName;
 
-  final File? image;
+  final String? birthDate;
+
+  final PickedImage? image;
 
   final String password;
 
@@ -22,6 +23,7 @@ class UserCreationDTO {
     required this.email,
     required this.firstName,
     required this.lastName,
+    this.birthDate,
     this.image,
     required this.password,
   });
@@ -33,11 +35,16 @@ class UserCreationDTO {
     request.fields['lastName'] = lastName;
     request.fields['password'] = password;
 
-    if (image != null && HttpUtils.isImage(image!)) {
-      request.files.add(await http.MultipartFile.fromPath(
+    if (birthDate != null) {
+      request.fields['birthDate'] = birthDate!;
+    }
+
+    if (image != null && HttpUtils.isImage(image!.name)) {
+      request.files.add(http.MultipartFile.fromBytes(
         'image',
-        image!.path,
-        contentType: HttpUtils.resolveMediaType(image!)
+        image!.bytes,
+        filename: image!.name,
+        contentType: HttpUtils.resolveMediaType(image!.name)
       ));
     }
   }

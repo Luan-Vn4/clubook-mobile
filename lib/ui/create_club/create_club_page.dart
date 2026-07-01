@@ -59,7 +59,7 @@ class CreateClubPage extends StatelessWidget {
       valueListenable: viewModel.clubImage,
       builder: (context, image, _) {
         final decorationImage = (image != null
-          ? DecorationImage(image: FileImage(image), fit: BoxFit.cover)
+          ? DecorationImage(image: MemoryImage(image.bytes), fit: BoxFit.cover)
           : null
         );
 

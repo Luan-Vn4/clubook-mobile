@@ -8,6 +8,15 @@ import 'package:booklub/utils/pagination/page.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:http/http.dart' as http;
 
+class ReadingGoalException implements Exception {
+  final String message;
+
+  ReadingGoalException(this.message);
+
+  @override
+  String toString() => 'ReadingGoalException: $message';
+}
+
 class ReadingGoalsRepository {
 
   final AuthRepository _authRepository;
@@ -117,6 +126,67 @@ class ReadingGoalsRepository {
     }
 
     return ReadingGoal.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Owner-only: marks the reading goal finished and saves the owner's review.
+  Future<ReadingGoal> finishReadingGoal(
+    String readingGoalId, {
+    required int rating,
+    String? review,
+  }) async {
+    final authToken = (await _authRepository.getAuthData())!.token;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/reading-goals/$readingGoalId/finish',
+    );
+
+    final response = await http.post(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+      body: jsonEncode({'rating': rating, 'review': review}),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ReadingGoalException(_reviewErrorMessage(response.statusCode));
+    }
+
+    return ReadingGoal.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Members can review the book once the reading period has ended.
+  Future<void> reviewReadingGoal(
+    String readingGoalId, {
+    required int rating,
+    String? review,
+  }) async {
+    final authToken = (await _authRepository.getAuthData())!.token;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/reading-goals/$readingGoalId/review',
+    );
+
+    final response = await http.post(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+      body: jsonEncode({'rating': rating, 'review': review}),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ReadingGoalException(_reviewErrorMessage(response.statusCode));
+    }
+  }
+
+  String _reviewErrorMessage(int statusCode) {
+    if (statusCode == 403) {
+      return 'Você ainda não pode avaliar este livro.';
+    }
+    return 'Não foi possível enviar a avaliação. Tente novamente.';
   }
 
 }

@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:booklub/domain/entities/clubs/club_creation_dto.dart';
+import 'package:booklub/domain/entities/io/picked_image.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/clubs/club_repository.dart';
 import 'package:booklub/infra/io/io_repository.dart';
@@ -24,7 +23,7 @@ class CreateClubViewModel extends AsyncChangeNotifier<void> {
   final InputValidators inputValidators = InputValidators();
 
   // ### Fields
-  late final ValueNotifier<File?> clubImage;
+  late final ValueNotifier<PickedImage?> clubImage;
 
   late final InputWrapper nameInput;
 
@@ -54,11 +53,6 @@ class CreateClubViewModel extends AsyncChangeNotifier<void> {
 
     isPrivate = ValueNotifier(false);
     isPrivate.addListener(notifyListeners);
-  }
-
-  void updateClubCoverImage(File coverImage) {
-    coverImage = coverImage;
-    notifyListeners();
   }
 
   void togglePrivacy() => isPrivate.value = !isPrivate.value;

@@ -118,7 +118,7 @@ class RegisterPage extends StatelessWidget {
       builder: (context, value, child) {
         final image = (value != null
           ? DecorationImage(
-            image: FileImage(value),
+            image: MemoryImage(value.bytes),
             fit: BoxFit.cover
           )
           : null

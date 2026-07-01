@@ -12,6 +12,7 @@ ReadingGoal _$ReadingGoalFromJson(Map<String, dynamic> json) => ReadingGoal(
   clubId: json['clubId'] as String,
   startDate: DateTime.parse(json['startDate'] as String),
   endDate: DateTime.parse(json['endDate'] as String),
+  finished: json['finished'] as bool? ?? false,
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 
@@ -22,5 +23,6 @@ Map<String, dynamic> _$ReadingGoalToJson(ReadingGoal instance) =>
       'clubId': instance.clubId,
       'startDate': instance.startDate.toIso8601String(),
       'endDate': instance.endDate.toIso8601String(),
+      'finished': instance.finished,
       'createdAt': instance.createdAt.toIso8601String(),
     };

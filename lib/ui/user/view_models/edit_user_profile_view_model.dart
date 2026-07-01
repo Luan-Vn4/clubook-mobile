@@ -1,13 +1,12 @@
-import 'dart:io';
+import 'package:booklub/domain/entities/io/picked_image.dart';
 import 'package:booklub/domain/entities/users/user_update_dto.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/io/io_repository.dart';
 import 'package:booklub/infra/user/user_repository.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 import 'package:booklub/utils/validation/input_validators.dart';
 import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:booklub/utils/logger/app_logger.dart';
 
 class EditUserProfileViewModel extends ChangeNotifier {
   final UserRepository userRepository;
@@ -17,10 +16,14 @@ class EditUserProfileViewModel extends ChangeNotifier {
 
   final Logger log = AppLogger.create();
 
-  late ValueNotifier<File?> profilePicture;
+  late ValueNotifier<PickedImage?> profilePicture;
   late InputWrapper firstNameInput;
   late InputWrapper lastNameInput;
   late InputWrapper birthDateInput;
+
+  String? _errorMessage;
+
+  String? get errorMessage => _errorMessage;
 
   EditUserProfileViewModel({
     required this.userRepository,
@@ -30,26 +33,37 @@ class EditUserProfileViewModel extends ChangeNotifier {
   }) {
     profilePicture = ValueNotifier(null);
     profilePicture.addListener(notifyListeners);
+    profilePicture.addListener(_clearError);
 
     firstNameInput = InputWrapper(
       controller: TextEditingController(),
       validator: inputValidators.validateBasicTextField,
     );
     firstNameInput.addListener(notifyListeners);
+    firstNameInput.addListener(_clearError);
 
     lastNameInput = InputWrapper(
       controller: TextEditingController(),
       validator: inputValidators.validateBasicTextField,
     );
     lastNameInput.addListener(notifyListeners);
+    lastNameInput.addListener(_clearError);
 
     birthDateInput = InputWrapper(
       controller: TextEditingController(),
       validator: inputValidators.validateBasicTextField,
     );
     birthDateInput.addListener(notifyListeners);
+    birthDateInput.addListener(_clearError);
 
     _initializeUserData();
+  }
+
+  void _clearError() {
+    if (_errorMessage != null) {
+      _errorMessage = null;
+      notifyListeners();
+    }
   }
 
   Future<void> _initializeUserData() async {
@@ -60,6 +74,7 @@ class EditUserProfileViewModel extends ChangeNotifier {
 
       firstNameInput.text = user.firstName;
       lastNameInput.text = user.lastName;
+      birthDateInput.text = user.birthDate;
 
       notifyListeners();
     }
@@ -70,16 +85,20 @@ class EditUserProfileViewModel extends ChangeNotifier {
   }
 
   Future<bool> update() async {
+    _errorMessage = null;
+    notifyListeners();
+
     final inputs = [
       firstNameInput,
       lastNameInput,
-      birthDateInput,
     ];
 
     final invalidInputs = inputs.where((input) => !input.isValid);
 
     if (invalidInputs.isNotEmpty) {
       log.d("Invalid inputs: $invalidInputs");
+      _errorMessage = 'Preencha o nome e o sobrenome corretamente.';
+      notifyListeners();
       return false;
     }
 
@@ -87,19 +106,31 @@ class EditUserProfileViewModel extends ChangeNotifier {
 
     if (authData == null) {
       log.d("Usuário não logado");
+      _errorMessage = 'Sua sessão expirou. Faça login novamente.';
+      notifyListeners();
       return false;
     }
+
+    final birthDate = birthDateInput.text.trim();
 
     final dto = UserUpdateDTO(
       id: authData.user.id,
       firstName: firstNameInput.text,
       lastName: lastNameInput.text,
+      birthDate: birthDate.isEmpty ? null : birthDate,
       image: profilePicture.value,
     );
 
     log.d("Updating user with DTO: $dto");
 
-    await userRepository.update(dto);
-    return true;
+    try {
+      await userRepository.update(dto);
+      return true;
+    } catch (e, stackTrace) {
+      log.e('Erro ao atualizar perfil', error: e, stackTrace: stackTrace);
+      _errorMessage = 'Não foi possível atualizar o perfil. Tente novamente.';
+      notifyListeners();
+      return false;
+    }
   }
 }

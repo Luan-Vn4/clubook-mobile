@@ -10,6 +10,7 @@ import 'package:booklub/ui/clubs/meetings/create_meeting_page.dart';
 import 'package:booklub/ui/clubs/profile/club_profile_page.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
 import 'package:booklub/ui/clubs/readinggoals/create_reading_goal_page.dart';
+import 'package:booklub/ui/clubs/readinggoals/reading_goal_detail_page.dart';
 import 'package:booklub/ui/clubs/view_models/clubs_view_model.dart';
 import 'package:booklub/ui/core/layouts/base_layout.dart';
 import 'package:booklub/ui/core/layouts/scroll_base_layout.dart';
@@ -351,6 +352,19 @@ abstract final class RoutingConfig {
               bottomBarVisible: false,
               sliver: CreateMeetingPage(clubId: clubId),
             ),
+          );
+        },
+      ),
+      GoRoute(
+        name: 'Reading Goal Detail',
+        path: Routes.readingGoalDetail(),
+        builder: (context, state) {
+          final readingGoalId = state.pathParameters['id']!;
+          return ScrollBaseLayout(
+            label: 'Leitura',
+            appBarVisible: true,
+            bottomBarVisible: false,
+            sliver: ReadingGoalDetailPage(readingGoalId: readingGoalId),
           );
         },
       ),

@@ -1,4 +1,6 @@
+import 'package:booklub/domain/entities/books/book_club_stats.dart';
 import 'package:booklub/domain/entities/books/book_item.dart';
+import 'package:booklub/domain/entities/books/book_rating.dart';
 import 'package:booklub/domain/entities/users/auth_data.dart';
 import 'package:booklub/domain/entities/users/auth_token.dart';
 import 'package:booklub/domain/entities/users/user.dart';
@@ -106,6 +108,14 @@ class _FakeBookApiRepository implements BookApiRepository {
     int size = 10,
   }) =>
       throw UnimplementedError();
+
+  @override
+  Future<List<BookRating>> getBookRatings(String volumeId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<BookClubStats> getBookClubStats(String volumeId) =>
+      throw UnimplementedError();
 }
 
 class _FakeReadingGoalsRepository implements ReadingGoalsRepository {
@@ -143,6 +153,22 @@ class _FakeReadingGoalsRepository implements ReadingGoalsRepository {
 
   @override
   Future<ReadingGoal> findById(String readingGoalId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ReadingGoal> finishReadingGoal(
+    String readingGoalId, {
+    required int rating,
+    String? review,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> reviewReadingGoal(
+    String readingGoalId, {
+    required int rating,
+    String? review,
+  }) =>
       throw UnimplementedError();
 }
 

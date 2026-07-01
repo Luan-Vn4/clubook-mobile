@@ -15,6 +15,9 @@ class ReadingGoal {
 
   final DateTime endDate;
 
+  @JsonKey(defaultValue: false)
+  final bool finished;
+
   final DateTime createdAt;
 
   const ReadingGoal({
@@ -23,6 +26,7 @@ class ReadingGoal {
     required this.clubId,
     required this.startDate,
     required this.endDate,
+    this.finished = false,
     required this.createdAt,
   });
 
