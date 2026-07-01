@@ -1,6 +1,7 @@
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:flutter/material.dart' hide Page;
 import 'package:sliver_tools/sliver_tools.dart';
+import 'package:booklub/ui/core/widgets/empty_state_widget.dart';
 
 class InfiniteGridWidget<T> extends StatefulWidget {
 
@@ -15,12 +16,21 @@ class InfiniteGridWidget<T> extends StatefulWidget {
   final SliverChildBuilderDelegate
     Function(List<T> itens, int totalItens) childrenDelegateProvider;
 
+  final String? emptyMessage;
+  final IconData? emptyIcon;
+  final String? emptyActionText;
+  final VoidCallback? onEmptyActionPressed;
+
   const InfiniteGridWidget({
     super.key,
     required this.paginator,
     required this.controller,
     required this.gridDelegate,
     required this.childrenDelegateProvider,
+    this.emptyMessage,
+    this.emptyIcon,
+    this.emptyActionText,
+    this.onEmptyActionPressed,
   }): isSliver = false;
 
   const InfiniteGridWidget.sliver({
@@ -29,6 +39,10 @@ class InfiniteGridWidget<T> extends StatefulWidget {
     required this.controller,
     required this.gridDelegate,
     required this.childrenDelegateProvider,
+    this.emptyMessage,
+    this.emptyIcon,
+    this.emptyActionText,
+    this.onEmptyActionPressed,
   }): isSliver = true;
 
   @override
@@ -81,6 +95,12 @@ class _InfiniteGridWidgetState<T> extends State<InfiniteGridWidget<T>> {
     ? _buildSliverPaginatedGridWidget()
     : _buildPaginatedGridWidget();
 
+  bool get _hasNoItems {
+    final totalItems = _items.length;
+    final hasMore = _hasMore;
+    return totalItems == 0 || (!hasMore && totalItems > 0);
+  }
+
   void _onScroll() {
     final preloadOffset = widget.controller.position.maxScrollExtent - 200;
     final scrollPosition = widget.controller.position.pixels;
@@ -96,6 +116,16 @@ class _InfiniteGridWidgetState<T> extends State<InfiniteGridWidget<T>> {
 
   Widget _buildPaginatedGridWidget() {
     if (_hasMore && !_isLoading && !isScrollable) _fetchNextPage();
+
+    if (_hasNoItems) {
+      return EmptyStateWidget(
+        message: widget.emptyMessage ?? 'There\'s nothing here yet!',
+        icon: widget.emptyIcon ?? Icons.search,
+        actionText: widget.emptyActionText,
+        onActionPressed: widget.onEmptyActionPressed,
+        centerContent: false,
+      );
+    }
 
     return Column(
       children: [

@@ -1,3 +1,4 @@
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ItemCircle extends StatelessWidget {
@@ -23,7 +24,7 @@ class ItemCircle extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.secondary,
         child: CircleAvatar(
           radius: 50,
-          backgroundImage: NetworkImage(imageUrl),
+          backgroundImage: safeNetworkImageProvider(imageUrl),
         ),
       ),
     );

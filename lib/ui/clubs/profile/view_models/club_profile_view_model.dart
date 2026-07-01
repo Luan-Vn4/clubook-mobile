@@ -49,6 +49,7 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     _bookApiRepository = bookApiRepository,
     _authViewModel = authViewModel
   {
+    print('VM_DEBUG: ClubProfileViewModel CREATED for $clubId');
     _setClub(clubId);
   }
 

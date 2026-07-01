@@ -4,6 +4,7 @@ import 'package:booklub/domain/reading_goals/entities/reading_goal.dart';
 import 'package:booklub/infra/books/book_api_repository.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
 import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:flutter/material.dart';
@@ -118,14 +119,7 @@ class _ClubReadingCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
     );
 
-    final cover = ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        book?.thumbnail ?? '',
-        height: 90,
-        width: 64,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Container(
+    Widget placeholder() => Container(
           height: 90,
           width: 64,
           color: colorScheme.surfaceContainerHighest,
@@ -133,7 +127,16 @@ class _ClubReadingCard extends StatelessWidget {
             isLoading ? Icons.hourglass_empty : Icons.menu_book_rounded,
             color: colorScheme.primary,
           ),
-        ),
+        );
+
+    final cover = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SafeNetworkImage(
+        url: book?.thumbnail,
+        height: 90,
+        width: 64,
+        fit: BoxFit.cover,
+        placeholder: placeholder(),
       ),
     );
 

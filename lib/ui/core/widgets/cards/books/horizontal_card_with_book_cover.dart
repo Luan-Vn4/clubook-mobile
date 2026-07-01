@@ -1,4 +1,5 @@
 import 'package:booklub/config/theme/theme_config.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 
 class HorizontalCardWithBookCover extends StatelessWidget {
@@ -44,13 +45,15 @@ class HorizontalCardWithBookCover extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Column(
-                  spacing: 8,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    cardTitle,
-                    ...?children
-                  ],
+                child: ClipRect(
+                  child: Column(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      cardTitle,
+                      ...?children
+                    ],
+                  ),
                 ),
               ),
               SizedBox(
@@ -99,7 +102,7 @@ class HorizontalCardWithBookCover extends StatelessWidget {
 
     final decorationImage = bookCoverUrl != null
       ? DecorationImage(
-          image: NetworkImage(bookCoverUrl!),
+          image: safeNetworkImageProvider(bookCoverUrl),
           fit: BoxFit.cover,
         )
       : null;

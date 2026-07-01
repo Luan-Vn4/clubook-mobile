@@ -5,7 +5,9 @@ import 'package:booklub/config/theme/theme_context.dart';
 import 'package:booklub/infra/activities/activities_repository.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/infra/books/book_api_repository.dart';
+import 'package:booklub/domain/geocoding/gateways/geocoding_gateway.dart';
 import 'package:booklub/infra/clubs/club_repository.dart';
+import 'package:booklub/infra/geocoding/geocoding_gateway_impl.dart';
 import 'package:booklub/infra/io/io_repository.dart';
 import 'package:booklub/infra/meetings/meetings_repository.dart';
 import 'package:booklub/infra/reading_goals/reading_goals_repository.dart';
@@ -68,6 +70,7 @@ abstract final class ProvidersConfig {
       authRepository: context.read(),
       apiUrl: env.apiUrl,
     )),
+    Provider<GeocodingGateway>(create: (context) => GeocodingGatewayImpl()),
     Provider<BookViewModel>(create: (context) => BookViewModel(
       repository: context.read(),
     )),

@@ -1,5 +1,6 @@
 import 'package:booklub/config/routing/routes.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,7 +30,7 @@ class ProfileHeader extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     final profilePic = DecorationImage(
-      image: NetworkImage(avatarUrl)
+      image: safeNetworkImageProvider(avatarUrl)
     );
 
     print(avatarUrl);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:booklub/domain/entities/books/book_item.dart';
 import 'package:booklub/domain/reading_goals/entities/reading_goal_creation_dto.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
@@ -9,6 +11,8 @@ import 'package:booklub/utils/validation/input_wrapper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:booklub/utils/logger/app_logger.dart';
+
+enum BookSearchState { idle, loading, results, error, empty }
 
 class CreateReadingGoalViewModel extends AsyncChangeNotifier<void> {
   final Logger log = AppLogger.create();
@@ -27,6 +31,12 @@ class CreateReadingGoalViewModel extends AsyncChangeNotifier<void> {
 
   bool created = false;
   BookItem? selectedBookItem;
+
+  List<BookItem> searchResults = [];
+
+  BookSearchState searchState = BookSearchState.idle;
+
+  Timer? _debounceTimer;
 
   CreateReadingGoalViewModel({
     required this.authRepository,
@@ -81,30 +91,66 @@ class CreateReadingGoalViewModel extends AsyncChangeNotifier<void> {
         startDateInput.value!.isBefore(endDateInput.value!);
   }
 
-  Future<void> searchBookByTitle() async {
-    final title = bookTitleInput.text.trim();
-    if (title.isEmpty) return;
+  void onBookTitleChanged(String text) {
+    _debounceTimer?.cancel();
+    final trimmed = text.trim();
+
+    if (trimmed.length < 3) {
+      searchState = BookSearchState.idle;
+      searchResults = [];
+      notifyListeners();
+      return;
+    }
+
+    _debounceTimer = Timer(
+      const Duration(milliseconds: 500),
+      () => _search(trimmed),
+    );
+  }
+
+  Future<void> _search(String query) async {
+    searchState = BookSearchState.loading;
+    notifyListeners();
 
     try {
-      final paginator = await bookApiRepository.searchBooks(intitle: title);
+      final paginator = await bookApiRepository.searchBooks(
+        intitle: query,
+        size: 5,
+      );
       final page = await paginator[0];
-
-      if (page.content.isNotEmpty) {
-        selectedBookItem = page.content.first;
-        bookTitleInput.text = selectedBookItem!.title;
-      } else {
-        selectedBookItem = null;
-      }
+      searchResults = page.content;
+      searchState = searchResults.isEmpty
+          ? BookSearchState.empty
+          : BookSearchState.results;
     } catch (e, stackTrace) {
+      searchState = BookSearchState.error;
       log.e(
         'Erro ao buscar livro por título',
         error: e,
         stackTrace: stackTrace,
       );
-      selectedBookItem = null;
     } finally {
       notifyListeners();
     }
+  }
+
+  void selectBook(BookItem book) {
+    selectedBookItem = book;
+    bookTitleInput.text = book.title;
+    searchState = BookSearchState.idle;
+    searchResults = [];
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    bookTitleInput.controller.dispose();
+    startDateTextInput.controller.dispose();
+    endDateTextInput.controller.dispose();
+    startDateInput.dispose();
+    endDateInput.dispose();
+    super.dispose();
   }
 
   Future<bool> createReadingGoal() async {

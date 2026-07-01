@@ -1,4 +1,5 @@
 import 'package:booklub/config/routing/routes.dart';
+import 'package:booklub/domain/geocoding/gateways/geocoding_gateway.dart';
 import 'package:booklub/ui/book/individual_book_page.dart';
 import 'package:booklub/domain/entities/users/auth_data.dart';
 import 'package:booklub/ui/book/view_models/book_profile_view_model.dart';
@@ -45,8 +46,10 @@ abstract final class RoutingConfig {
   static GoRouter createRouter(AuthViewModel authViewModel) => GoRouter(
     initialLocation: Routes.home,
     refreshListenable: authViewModel,
-    redirect: (context, state) async {
-      final isLoggedIn = await authViewModel.validateToken();
+    redirect: (context, state) {
+      final token = authViewModel.authToken;
+      final isLoggedIn = token != null &&
+          token.expiration.isAfter(DateTime.now());
       final isGoingToAuthPage =
           (state.uri.path == Routes.register ||
               state.uri.path == Routes.login ||
@@ -342,6 +345,8 @@ abstract final class RoutingConfig {
                   meetingsRepository: context.read(),
                   bookApiRepository: context.read(),
                   readingGoalsRepository: context.read(),
+                  clubId: clubId,
+                  geocodingGateway: context.read<GeocodingGateway>(),
                 ),
             child: ScrollBaseLayout(
               appBarVisible: true,

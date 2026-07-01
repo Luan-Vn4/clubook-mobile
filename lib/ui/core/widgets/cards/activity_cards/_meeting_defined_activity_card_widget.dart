@@ -24,7 +24,8 @@ class MeetingDefinedActivityCardWidget extends StatelessWidget {
         Expanded(
           child: Text(
             activity.meetingAddress ?? 'Endereço indisponível',
-            overflow: TextOverflow.clip,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ),
       ],
@@ -37,7 +38,8 @@ class MeetingDefinedActivityCardWidget extends StatelessWidget {
         Expanded(
           child: Text(
             bookTitle,
-            overflow: TextOverflow.clip,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ),
       ],

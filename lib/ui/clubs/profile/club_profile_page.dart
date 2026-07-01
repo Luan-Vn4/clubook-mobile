@@ -2,6 +2,7 @@ import 'package:booklub/config/theme/theme_config.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
 import 'package:booklub/ui/clubs/profile/widgets/club_profile_page_body_widget.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart' hide Page;
 import 'package:booklub/utils/logger/app_logger.dart';
@@ -20,14 +21,18 @@ class ClubProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.read<ClubProfileViewModel>();
 
-    logger.i('Building ClubProfilePage');
+    logger.i('Building ClubProfilePage - START');
 
-    return AsyncBuilder.fromAsyncChangeNotifier(
+    final result = AsyncBuilder.fromAsyncChangeNotifier(
       asyncChangeNotifier: viewModel,
       onRetrieved: (club) => Builder(builder: _buildPage),
       onLoading: () => Builder(builder: _buildLoadingPage),
       onError: (_, _) => Builder(builder: _buildErrorPage),
     );
+
+    logger.i('Building ClubProfilePage - END');
+
+    return result;
   }
 
   Widget _buildLoadingPage(BuildContext context) {
@@ -98,7 +103,7 @@ class ClubProfilePage extends StatelessWidget {
           borderColor: colorScheme.primary,
           borderWidth: 2,
           decorationImage: DecorationImage(
-            image: NetworkImage(club.imageUrl!),
+            image: safeNetworkImageProvider(club.imageUrl),
           ),
         ),
       ),

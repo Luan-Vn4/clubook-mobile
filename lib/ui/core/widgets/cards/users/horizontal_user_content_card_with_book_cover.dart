@@ -1,6 +1,7 @@
 import 'package:booklub/config/theme/theme_config.dart';
 import 'package:booklub/ui/core/widgets/cards/books/horizontal_card_with_book_cover.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -58,7 +59,7 @@ class HorizontalUserContentCardWithBookCover extends StatelessWidget {
               radius: 24,
               decorationImage: userAvatarUrl != null
                 ? DecorationImage(
-                    image: NetworkImage(userAvatarUrl!),
+                    image: safeNetworkImageProvider(userAvatarUrl),
                     fit: BoxFit.cover,
                   )
                 : null,

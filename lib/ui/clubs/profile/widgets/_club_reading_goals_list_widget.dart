@@ -2,6 +2,7 @@ import 'package:booklub/config/routing/routes.dart';
 import 'package:booklub/domain/reading_goals/entities/reading_goal_with_book.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
 import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:flutter/material.dart';
@@ -110,35 +111,22 @@ class _ClubReadingGoalCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: thumbnailUrl != null && thumbnailUrl.isNotEmpty
-                    ? Image.network(
-                        thumbnailUrl,
-                        width: 48,
-                        height: 72,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 48,
-                            height: 72,
-                            color: colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.menu_book,
-                              size: 32,
-                              color: colorScheme.onSurface.withValues(alpha: 0.3),
-                            ),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: 48,
-                        height: 72,
-                        color: colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          Icons.menu_book,
-                          size: 32,
-                          color: colorScheme.onSurface.withValues(alpha: 0.3),
-                        ),
-                      ),
+                child: SafeNetworkImage(
+                  url: thumbnailUrl,
+                  width: 48,
+                  height: 72,
+                  fit: BoxFit.cover,
+                  placeholder: Container(
+                    width: 48,
+                    height: 72,
+                    color: colorScheme.surfaceContainerHighest,
+                    child: Icon(
+                      Icons.menu_book,
+                      size: 32,
+                      color: colorScheme.onSurface.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(

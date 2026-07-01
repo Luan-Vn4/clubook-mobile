@@ -37,6 +37,8 @@ class BaseAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   Widget _buidAppBar(BuildContext context) => PreferredSize(
     preferredSize: Size.fromHeight(height),
     child: AppBar(
+      automaticallyImplyLeading: false,
+      leading: _buildLeading(context),
       title: Text(label),
       actions: _getActions(context),
       shadowColor: hideShadow ? Colors.transparent : null,
@@ -45,11 +47,26 @@ class BaseAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _buildSliverAppBar(BuildContext context) => SliverAppBar(
     floating: true,
+    automaticallyImplyLeading: false,
+    leading: _buildLeading(context),
     title: Text(label),
     actions: _getActions(context),
     forceElevated: true,
     shadowColor: hideShadow ? Colors.transparent : null,
   );
+
+  Widget? _buildLeading(BuildContext context) {
+    if (!GoRouter.of(context).canPop()) return null;
+    return IconButton(
+      icon: const BackButtonIcon(),
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      onPressed: () {
+        print('BACK_DEBUG: back pressed');
+        context.pop();
+        print('BACK_DEBUG: pop returned');
+      },
+    );
+  }
 
   List<Widget> _getActions(BuildContext context) => [
     IconButton(

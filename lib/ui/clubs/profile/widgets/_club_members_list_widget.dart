@@ -3,6 +3,7 @@ import 'package:booklub/config/theme/theme_config.dart';
 import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
@@ -99,7 +100,7 @@ class _ClubMemberCard extends StatelessWidget {
 
     final decorationImage = member.imageUrl != null
       ? DecorationImage(
-          image: NetworkImage(member.imageUrl!)
+          image: safeNetworkImageProvider(member.imageUrl)
         )
       : null;
 

@@ -12,12 +12,15 @@ class NamedTextFieldWidget extends StatefulWidget {
 
   final Widget? suffixIcon;
 
+  final ValueChanged<String>? onChanged;
+
   const NamedTextFieldWidget({
     super.key,
     required this.label,
     required this.inputWrapper,
     this.hidable = false,
     this.suffixIcon,
+    this.onChanged,
   });
 
   @override
@@ -84,6 +87,7 @@ class _NamedTextFieldWidgetState extends State<NamedTextFieldWidget> {
       obscureText: _hideText,
       validator: widget.inputWrapper.validator,
       controller: widget.inputWrapper,
+      onChanged: widget.onChanged,
       decoration: InputDecoration(
         labelText: widget.label,
         labelStyle: TextStyle(color: colorScheme.superLightBlack),

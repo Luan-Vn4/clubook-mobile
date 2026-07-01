@@ -1,4 +1,5 @@
 import 'package:booklub/domain/entities/books/book_item.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:booklub/config/routing/routes.dart';
@@ -15,18 +16,17 @@ class HorizontalBookCardWidget extends StatelessWidget {
 
     final bookCover = ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        book.thumbnail ?? '',
+      child: SafeNetworkImage(
+        url: book.thumbnail,
         height: 100,
         width: 70,
         fit: BoxFit.cover,
-        errorBuilder:
-            (_, __, ___) => Container(
-              height: 100,
-              width: 70,
-              color: Colors.grey[300],
-              child: Icon(Icons.broken_image, color: Colors.grey),
-            ),
+        placeholder: Container(
+          height: 100,
+          width: 70,
+          color: Colors.grey[300],
+          child: Icon(Icons.broken_image, color: Colors.grey),
+        ),
       ),
     );
 

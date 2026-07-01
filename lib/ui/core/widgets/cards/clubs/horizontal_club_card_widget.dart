@@ -2,6 +2,7 @@ import 'package:booklub/config/routing/routes.dart';
 import 'package:booklub/config/theme/theme_config.dart';
 import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,7 +31,7 @@ class HorizontalClubCardWidget extends StatelessWidget {
       borderColor: colorScheme.primary,
       borderWidth: 2,
       decorationImage: DecorationImage(
-        image: NetworkImage(club.imageUrl!),
+        image: safeNetworkImageProvider(club.imageUrl),
         fit: BoxFit.cover
       )
     );

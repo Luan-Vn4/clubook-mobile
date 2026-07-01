@@ -4,6 +4,7 @@ import 'package:booklub/ui/book/view_models/book_profile_view_model.dart';
 import 'package:booklub/utils/async_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:booklub/ui/core/layouts/scroll_base_layout.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:booklub/ui/book/widgets/review_card_widget.dart';
@@ -124,7 +125,7 @@ class IndividualBookPage extends StatelessWidget {
               image: DecorationImage(
                 image:
                     bookData.thumbnail != null
-                        ? NetworkImage(bookData.thumbnail!)
+                        ? safeNetworkImageProvider(bookData.thumbnail)
                         : const AssetImage('assets/images/misery_capa.jpg')
                             as ImageProvider,
                 fit: BoxFit.cover,

@@ -1,3 +1,4 @@
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ItemRectangle extends StatelessWidget {
@@ -21,7 +22,7 @@ class ItemRectangle extends StatelessWidget {
         height: 140,
         decoration: BoxDecoration(
           // bordas suavemente arredondadas
-          image: DecorationImage(image: NetworkImage(imageUrl)),
+          image: DecorationImage(image: safeNetworkImageProvider(imageUrl)),
         ),
       ),
     );

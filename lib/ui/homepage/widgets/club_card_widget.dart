@@ -1,5 +1,6 @@
 import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,7 +15,7 @@ class ClubCardWidget extends StatelessWidget {
 
     final image =
         club.imageUrl != null
-            ? NetworkImage(club.imageUrl!)
+            ? safeNetworkImageProvider(club.imageUrl)
             : const AssetImage('assets/images/default_club.png')
                 as ImageProvider;
 

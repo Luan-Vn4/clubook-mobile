@@ -1,6 +1,7 @@
 import 'package:booklub/config/routing/routes.dart';
 import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
+import 'package:booklub/ui/core/widgets/safe_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,7 +31,7 @@ class UserHorizontalCardWidget extends StatelessWidget {
       borderColor: colorScheme.primary,
       borderWidth: 2,
       decorationImage: DecorationImage(
-        image: NetworkImage(userProfileImage),
+        image: safeNetworkImageProvider(userProfileImage),
         fit: BoxFit.cover,
       ),
     );
