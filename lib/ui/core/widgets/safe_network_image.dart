@@ -40,6 +40,10 @@ class SafeNetworkImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      // Google Books covers (and other CDNs) omit CORS headers; on web, fall
+      // back to an <img> element which can display cross-origin images instead
+      // of XHR/canvas-tainting that silently fails to render.
+      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
       errorBuilder: (_, _, _) {
         _failedUrls.add(url!);
         return placeholder;

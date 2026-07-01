@@ -46,10 +46,8 @@ abstract final class RoutingConfig {
   static GoRouter createRouter(AuthViewModel authViewModel) => GoRouter(
     initialLocation: Routes.home,
     refreshListenable: authViewModel,
-    redirect: (context, state) {
-      final token = authViewModel.authToken;
-      final isLoggedIn = token != null &&
-          token.expiration.isAfter(DateTime.now());
+    redirect: (context, state) async {
+      final isLoggedIn = await authViewModel.validateToken();
       final isGoingToAuthPage =
           (state.uri.path == Routes.register ||
               state.uri.path == Routes.login ||
