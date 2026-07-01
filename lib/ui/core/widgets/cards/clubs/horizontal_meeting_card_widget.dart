@@ -3,6 +3,7 @@ import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/domain/meetings/entities/meeting.dart';
 import 'package:booklub/ui/core/widgets/cards/clubs/horizontal_club_content_card_with_book_cover.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HorizontalMeetingCardWidget extends StatelessWidget {
 
@@ -24,6 +25,14 @@ class HorizontalMeetingCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final meetingDate = Row(
+      spacing: 8,
+      children: [
+        Icon(Icons.calendar_today_rounded),
+        Text(DateFormat('dd/MM/yyyy HH:mm').format(meeting.date)),
+      ],
+    );
+
     final address = Row(
       spacing: 8,
       children: [
@@ -53,6 +62,7 @@ class HorizontalMeetingCardWidget extends StatelessWidget {
       createdAt: meeting.createdAt,
       showClubHeader: showClubHeader,
       children: [
+        meetingDate,
         address,
         readingGoalBook
       ]
