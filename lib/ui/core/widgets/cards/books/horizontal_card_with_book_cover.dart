@@ -34,34 +34,35 @@ class HorizontalCardWithBookCover extends StatelessWidget {
         )
     );
 
-    final content = Expanded(
-      child: LayoutBuilder(
-        builder: (context, constraints) => Container(
-          constraints: BoxConstraints(
-            minWidth: constraints.maxWidth,
-          ),
-          padding: EdgeInsets.all(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: ClipRect(
-                  child: Column(
-                    spacing: 8,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      cardTitle,
-                      ...?children
-                    ],
-                  ),
-                ),
+    final content = LayoutBuilder(
+      builder: (context, constraints) => Container(
+        constraints: BoxConstraints(
+          minWidth: constraints.maxWidth,
+        ),
+        padding: EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: constraints.maxWidth - 24 - 80 - 8,
+              child: Column(
+                spacing: 8,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  cardTitle,
+                  ...?children
+                ],
               ),
-              SizedBox(
-                height: double.infinity,
+            ),
+            SizedBox(width: 8),
+            SizedBox(
+              width: 80,
+              child: AspectRatio(
+                aspectRatio: 2/3,
                 child: Builder(builder: _buildBookCover),
-              )
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -73,6 +74,7 @@ class HorizontalCardWithBookCover extends StatelessWidget {
     return Card(
       shape: shape,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (header != null) Builder(builder: _buildHeader),
           content
@@ -107,14 +109,11 @@ class HorizontalCardWithBookCover extends StatelessWidget {
         )
       : null;
 
-    return AspectRatio(
-      aspectRatio: 2/3,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-          color: colorScheme.darkWhite,
-          image: decorationImage
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(4)),
+        color: colorScheme.darkWhite,
+        image: decorationImage
       ),
     );
   }

@@ -129,6 +129,7 @@ class _ClubFeedWidgetState extends State<ClubFeedWidget> {
         paginator: paginator,
         controller: controller,
         gridDelegate: gridDelegate,
+        useSliverList: true,
         childrenDelegateProvider: childrenDelegateProvider,
       ),
     );

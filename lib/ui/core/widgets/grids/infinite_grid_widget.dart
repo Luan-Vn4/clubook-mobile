@@ -7,6 +7,8 @@ class InfiniteGridWidget<T> extends StatefulWidget {
 
   final bool isSliver;
 
+  final bool useSliverList;
+
   final Paginator<T> paginator;
 
   final ScrollController controller;
@@ -31,7 +33,7 @@ class InfiniteGridWidget<T> extends StatefulWidget {
     this.emptyIcon,
     this.emptyActionText,
     this.onEmptyActionPressed,
-  }): isSliver = false;
+  }): isSliver = false, useSliverList = false;
 
   const InfiniteGridWidget.sliver({
     super.key,
@@ -39,6 +41,7 @@ class InfiniteGridWidget<T> extends StatefulWidget {
     required this.controller,
     required this.gridDelegate,
     required this.childrenDelegateProvider,
+    this.useSliverList = false,
     this.emptyMessage,
     this.emptyIcon,
     this.emptyActionText,
@@ -149,10 +152,15 @@ class _InfiniteGridWidgetState<T> extends State<InfiniteGridWidget<T>> {
 
     return MultiSliver(
       children: [
-        SliverGrid(
-          gridDelegate: widget.gridDelegate,
-          delegate: widget.childrenDelegateProvider(_items, _items.length),
-        ),
+        if (widget.useSliverList)
+          SliverList(
+            delegate: widget.childrenDelegateProvider(_items, _items.length),
+          )
+        else
+          SliverGrid(
+            gridDelegate: widget.gridDelegate,
+            delegate: widget.childrenDelegateProvider(_items, _items.length),
+          ),
         if (_isLoading) const SliverPadding(
           padding: EdgeInsets.all(8.0),
           sliver: SliverToBoxAdapter(

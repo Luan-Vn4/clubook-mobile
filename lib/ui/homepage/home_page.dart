@@ -119,6 +119,7 @@ class _HomePageState extends State<HomePage> {
                     paginator: paginator,
                     controller: scrollController,
                     gridDelegate: gridDelegate,
+                    useSliverList: true,
                     childrenDelegateProvider: (activities, total) {
                       return SliverChildBuilderDelegate((context, index) {
                         final activity = activities[index];
