@@ -1,6 +1,8 @@
 import 'package:booklub/config/theme/theme_config.dart';
-import 'package:booklub/domain/clubs/entities/club_pending_request.dart';
+import 'package:booklub/domain/club_membership/entities/club_pending_entry.dart';
+import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/ui/clubs/profile/view_models/club_profile_view_model.dart';
+import 'package:booklub/ui/core/view_models/user_view_model.dart';
 import 'package:booklub/ui/core/widgets/circle_image_widget.dart';
 import 'package:booklub/ui/core/widgets/grids/infinite_grid_widget.dart';
 import 'package:booklub/utils/async_builder.dart';
@@ -8,61 +10,86 @@ import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ClubRequestsListWidget extends StatelessWidget {
+class ClubRequestsListWidget extends StatefulWidget {
   const ClubRequestsListWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final viewModel = context.watch<ClubProfileViewModel>();
+  State<ClubRequestsListWidget> createState() => _ClubRequestsListWidgetState();
+}
 
+class _ClubRequestsListWidgetState extends State<ClubRequestsListWidget> {
+  late Future<Paginator<ClubPendingEntry>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = context.read<ClubProfileViewModel>().getClubRequests(8);
+  }
+
+  void _reload() {
+    setState(() {
+      _future = context.read<ClubProfileViewModel>().getClubRequests(8);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AsyncBuilder(
-      future: viewModel.getClubPendingRequests(8),
-      onRetrieved: (paginator) => Builder(
-        builder: (ctx) => onRetrieved(ctx, paginator, viewModel),
+      future: _future,
+      onRetrieved: (paginator) =>
+          Builder(builder: (ctx) => _onRetrieved(ctx, paginator)),
+      onLoading: () => const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: CircularProgressIndicator()),
+        ),
       ),
-      onLoading: () => Builder(builder: onLoading),
-      onError: (error, stackTrace) => Builder(
-        builder: (ctx) => onError(ctx, error, stackTrace),
+      onError: (_, _) => const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: Text('Erro ao carregar solicitações')),
+        ),
       ),
     );
   }
 
-  Widget onRetrieved(
+  Widget _onRetrieved(
     BuildContext context,
-    Paginator<dynamic> paginator,
-    ClubProfileViewModel viewModel,
+    Paginator<ClubPendingEntry> paginator,
   ) {
+    final textTheme = Theme.of(context).textTheme;
     final scrollController = context.read<ScrollController>();
 
-    final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+    if (paginator.totalElements == 0) {
+      return SliverPadding(
+        padding: const EdgeInsets.all(24),
+        sliver: SliverToBoxAdapter(
+          child: Center(
+            child: Text(
+              'Nenhuma solicitação pendente.',
+              style: textTheme.bodyMedium,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 1,
-      childAspectRatio: 9 / 2.5,
+      childAspectRatio: 9 / 3,
       mainAxisSpacing: 12,
     );
 
     SliverChildBuilderDelegate childrenDelegateProvider(
-      List<dynamic> requests,
-      int totalRequests,
-    ) =>
-        SliverChildBuilderDelegate(
-          (context, index) {
-            final request = requests[index] as ClubPendingRequest;
-            return _ClubRequestCard(
-              request: request,
-              onAccept: () => viewModel.acceptRequest(request.userId),
-              onDeny: () => viewModel.denyRequest(request.userId),
-            );
-          },
-          childCount: totalRequests,
-        );
+      List<ClubPendingEntry> entries,
+      int total,
+    ) => SliverChildBuilderDelegate(
+      (context, index) => _RequestCard(entry: entries[index], onHandled: _reload),
+      childCount: total,
+    );
 
     return SliverPadding(
-      padding: const EdgeInsets.only(
-        top: 12,
-        left: 12,
-        right: 12,
-        bottom: 36,
-      ),
+      padding: const EdgeInsets.only(top: 12, left: 12, right: 12, bottom: 36),
       sliver: InfiniteGridWidget.sliver(
         paginator: paginator,
         controller: scrollController,
@@ -71,104 +98,122 @@ class ClubRequestsListWidget extends StatelessWidget {
       ),
     );
   }
-
-  Widget onLoading(BuildContext context) {
-    return const SliverFillRemaining(
-      hasScrollBody: false,
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
-  Widget onError(BuildContext context, Object error, StackTrace stackTrace) {
-    return SliverFillRemaining(
-      hasScrollBody: false,
-      child: Center(
-        child: Text('Erro ao carregar solicitações do clube'),
-      ),
-    );
-  }
 }
 
-class _ClubRequestCard extends StatelessWidget {
-  final ClubPendingRequest request;
-  final VoidCallback onAccept;
-  final VoidCallback onDeny;
+class _RequestCard extends StatefulWidget {
+  final ClubPendingEntry entry;
+  final VoidCallback onHandled;
 
-  const _ClubRequestCard({
-    required this.request,
-    required this.onAccept,
-    required this.onDeny,
-  });
+  const _RequestCard({required this.entry, required this.onHandled});
+
+  @override
+  State<_RequestCard> createState() => _RequestCardState();
+}
+
+class _RequestCardState extends State<_RequestCard> {
+  bool _busy = false;
+
+  Future<void> _handle(
+    Future<void> Function(ClubProfileViewModel vm) action,
+    String message,
+  ) async {
+    final vm = context.read<ClubProfileViewModel>();
+    setState(() => _busy = true);
+    try {
+      await action(vm);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+        widget.onHandled();
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível concluir a ação.')),
+        );
+        setState(() => _busy = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final border = RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        topLeft: const Radius.circular(100),
-        topRight: const Radius.circular(36),
-        bottomLeft: const Radius.circular(100),
-        bottomRight: const Radius.circular(36),
-      ),
+    return AsyncBuilder(
+      future: context.read<UserViewModel>().getUser(widget.entry.userId),
+      onLoading: () => _buildCard(context, null),
+      onError: (_, _) => _buildCard(context, null),
+      onRetrieved: (user) => _buildCard(context, user),
     );
+  }
+
+  Widget _buildCard(BuildContext context, User? user) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final decorationImage = (user?.imageUrl != null && user!.imageUrl!.isNotEmpty)
+        ? DecorationImage(image: NetworkImage(user.imageUrl!), fit: BoxFit.cover)
+        : null;
 
     return Card(
-      shape: border,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.all(12),
         child: Row(
+          spacing: 12,
           children: [
-            CircleImageWidget.expanded(
+            CircleImageWidget(
+              radius: 24,
               backgroundColor: colorScheme.white,
               borderColor: colorScheme.primary,
               borderWidth: 2,
-              decorationImage: null, // User has no image in pending request
+              decorationImage: decorationImage,
             ),
-            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    request.userId,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+                    user?.fullName ?? 'Usuário',
+                    style: textTheme.titleSmall,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Solicitação de entrada',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  if (user != null)
+                    Text(
+                      '@${user.username}',
+                      style: textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton.filled(
-              onPressed: onAccept,
-              icon: const Icon(Icons.check),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
+            if (_busy)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            else ...[
+              IconButton(
+                tooltip: 'Aceitar',
+                onPressed: () => _handle(
+                  (vm) => vm.acceptRequest(widget.entry.userId),
+                  'Solicitação aceita.',
+                ),
+                icon: Icon(Icons.check_circle, color: colorScheme.primary),
               ),
-            ),
-            const SizedBox(width: 4),
-            IconButton.filled(
-              onPressed: onDeny,
-              icon: const Icon(Icons.close),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.error,
-                foregroundColor: colorScheme.onError,
+              IconButton(
+                tooltip: 'Recusar',
+                onPressed: () => _handle(
+                  (vm) => vm.denyRequest(widget.entry.userId),
+                  'Solicitação recusada.',
+                ),
+                icon: Icon(Icons.cancel, color: colorScheme.error),
               ),
-            ),
+            ],
           ],
         ),
       ),

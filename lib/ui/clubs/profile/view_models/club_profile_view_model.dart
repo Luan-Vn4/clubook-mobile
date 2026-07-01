@@ -1,4 +1,5 @@
 import 'package:booklub/domain/activities/entities/activity.dart';
+import 'package:booklub/domain/club_membership/entities/club_pending_entry.dart';
 import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/domain/entities/books/book_item.dart';
 import 'package:booklub/domain/entities/users/user.dart';
@@ -49,7 +50,6 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     _bookApiRepository = bookApiRepository,
     _authViewModel = authViewModel
   {
-    print('VM_DEBUG: ClubProfileViewModel CREATED for $clubId');
     _setClub(clubId);
   }
 
@@ -170,7 +170,7 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     try {
       final isAdmin = await isLoggedUserClubAdmin();
       if (isAdmin) {
-        final pendingRequestsPaginator = await getClubPendingRequests(1);
+        final pendingRequestsPaginator = await getClubRequests(1);
         _totalPendingRequests = pendingRequestsPaginator.totalElements;
       } else {
         _totalPendingRequests = 0;
@@ -182,8 +182,46 @@ class ClubProfileViewModel extends AsyncChangeNotifier {
     notifyListeners();
   }
 
-  Future<Paginator<dynamic>> getClubPendingRequests(int pageSize) async {
-    return _clubRepository.findPendingRequests(clubId, pageSize);
+  Future<Paginator<ClubPendingEntry>> getClubRequests(int pageSize) {
+    return _clubRepository.findClubRequests(clubId, pageSize);
+  }
+
+  Future<({bool isOwner, bool isMember, bool hasPendingRequest})>
+  loadMembershipStatus() async {
+    final userId = (await _authViewModel.authData)?.user.id;
+    if (userId == null || club == null) {
+      return (isOwner: false, isMember: false, hasPendingRequest: false);
+    }
+
+    if (club!.ownerId == userId) {
+      return (isOwner: true, isMember: true, hasPendingRequest: false);
+    }
+
+    final isMember = await _clubRepository.isMember(clubId, userId);
+    final hasPendingRequest = isMember
+        ? false
+        : await _clubRepository.hasPendingRequest(clubId, userId);
+
+    return (
+      isOwner: false,
+      isMember: isMember,
+      hasPendingRequest: hasPendingRequest,
+    );
+  }
+
+  Future<void> sendJoinRequest() async {
+    final userId = (await _authViewModel.authData)!.user.id;
+    await _clubRepository.sendJoinRequest(clubId, userId);
+  }
+
+  Future<void> cancelJoinRequest() async {
+    final userId = (await _authViewModel.authData)!.user.id;
+    await _clubRepository.cancelJoinRequest(clubId, userId);
+  }
+
+  Future<void> leaveClub() async {
+    final userId = (await _authViewModel.authData)!.user.id;
+    await _clubRepository.leaveClub(clubId, userId);
   }
 
   Future<void> acceptRequest(String userId) async {

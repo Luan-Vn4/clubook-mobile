@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:booklub/domain/club_membership/entities/club_pending_entry.dart';
 import 'package:booklub/domain/entities/clubs/club.dart';
 import 'package:booklub/domain/entities/clubs/club_creation_dto.dart';
-import 'package:booklub/domain/clubs/entities/club_pending_request.dart';
 import 'package:booklub/domain/entities/users/auth_data.dart';
 import 'package:booklub/domain/entities/users/auth_token.dart';
 import 'package:booklub/domain/entities/users/user.dart';
 import 'package:booklub/infra/auth/auth_repository.dart';
 import 'package:booklub/utils/http/http_error_dto.dart';
+import 'package:booklub/utils/logger/app_logger.dart';
 import 'package:booklub/utils/pagination/page.dart';
 import 'package:booklub/utils/pagination/paginator.dart';
 import 'package:http/http.dart' as http;
-import 'package:booklub/utils/logger/app_logger.dart';
 
 class CreateClubException implements Exception {
 
@@ -263,17 +263,114 @@ class ClubRepository {
     });
   }
 
-  Future<Paginator<ClubPendingRequest>> findPendingRequests(String clubId, int pageSize) async {
+  Future<bool> isMember(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/clubs/$clubId/members/is-member/$userId',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao verificar associação ao clube');
+    }
+
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    return json['result'] == true;
+  }
+
+  Future<bool> hasPendingRequest(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/users/$userId/requests/clubs/$clubId/requests',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    return response.statusCode == 200;
+  }
+
+  Future<void> sendJoinRequest(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/users/$userId/requests/requests/$clubId',
+    );
+
+    final response = await http.post(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Erro ao solicitar entrada no clube');
+    }
+  }
+
+  Future<void> cancelJoinRequest(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/users/$userId/requests/requests/$clubId/cancel',
+    );
+
+    final response = await http.delete(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Erro ao cancelar solicitação');
+    }
+  }
+
+  Future<void> leaveClub(String clubId, String userId) async {
+    final authToken = await _authToken;
+
+    final uri = Uri.parse('$_apiUrl/api/v1/clubs/$clubId/members/$userId');
+
+    final response = await http.delete(
+      uri,
+      headers: {
+        HttpHeaders.contentTypeHeader: ContentType.json.toString(),
+        HttpHeaders.authorizationHeader: authToken.toString(),
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Erro ao sair do clube');
+    }
+  }
+
+  Future<Paginator<ClubPendingEntry>> findClubRequests(
+    String clubId,
+    int pageSize,
+  ) async {
     final authToken = await _authToken;
 
     return Paginator.create(pageSize, (page, size) async {
-      final uri = Uri.parse(
-        '$_apiUrl/api/v1/clubs/$clubId/requests'
-      ).replace(
-        queryParameters: {
-          'page': page.toString(),
-          'size': size.toString(),
-        }
+      final uri = Uri.parse('$_apiUrl/api/v1/clubs/$clubId/requests').replace(
+        queryParameters: {'page': page.toString(), 'size': size.toString()},
       );
 
       final response = await http.get(
@@ -281,16 +378,16 @@ class ClubRepository {
         headers: {
           HttpHeaders.contentTypeHeader: ContentType.json.toString(),
           HttpHeaders.authorizationHeader: authToken.toString(),
-        }
+        },
       );
 
       if (response.statusCode != 200) {
-        throw Exception('Erro ao buscar solicitações do clube com ID $clubId');
+        throw Exception('Erro ao buscar solicitações do clube');
       }
 
-      return Page<ClubPendingRequest>.fromJson(
+      return Page<ClubPendingEntry>.fromJson(
         jsonDecode(response.body),
-        (json) => ClubPendingRequest.fromJson(json as Map<String, dynamic>),
+        (json) => ClubPendingEntry.fromJson(json as Map<String, dynamic>),
       );
     });
   }
@@ -298,7 +395,9 @@ class ClubRepository {
   Future<void> acceptRequest(String clubId, String userId) async {
     final authToken = await _authToken;
 
-    final uri = Uri.parse('$_apiUrl/api/v1/clubs/$clubId/requests/$userId/accept');
+    final uri = Uri.parse(
+      '$_apiUrl/api/v1/clubs/$clubId/requests/$userId/accept',
+    );
 
     final response = await http.post(
       uri,
